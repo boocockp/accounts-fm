@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Accounts</title>
+    <style>
+        body {
+            font-family: Arial,Helvetica,sans-serif;
+        }
+
+        h2 {
+            margin-left: 60px;
+        }
+        div.frame {
+            /*width: 30%;*/
+            height: 300px;
+            padding: 0 30px;
+            margin: 0 60px 0 30px;
+            /*border: 2px solid lightslategray;*/
+            float: left;
+        }
+
+        div#table table {
+            border: 1px solid gray;
+            border-collapse: collapse;
+        }
+        div#table table th, div#table table td {
+            border: 1px solid gray;
+            padding: 5px;
+            min-width: 5em;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Accounts</h2>
+<div id="accountDetails" class="frame">
+    <h3>Account Details</h3>
+
+    <form action="">
+        <div>
+            <label>Name</label>
+            <input type="text" name="name" value="">
+        </div>
+        <div>
+            <button type="submit">Save</button>
+        </div>
+    </form>
+</div>
+
+<div id="transactions" class="frame">
+</div>
+
+
+<div id="output" class="frame">
+    <h3>Accounts</h3>
+    <div id="table"></div>
+</div>
+
+<script src="lib/lodash.js"></script>
+<script src="lib/jquery-2.2.1.js"></script>
+
+<script src="CachedSequence.js"></script>
+<script src="InputSource.js"></script>
+<script src="LocalStorageInputSource.js"></script>
+<script src="GeneralLedger.js"></script>
+<script src="input.js"> </script>
+<script src="model.js"> </script>
+<script src="view.js"> </script>
+
+</body>
+</html>
