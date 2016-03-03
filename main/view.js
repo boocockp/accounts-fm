@@ -1,6 +1,6 @@
 'use strict';
 
-let transactionEntryViewHtml = (accountDetails) => {
+let transactionEntryView = (accountDetails) => {
     let accountOption = a => `<option value="${a.id}">${a.details.name}</option>`;
     let accountOptions = () => accountDetails.map(accountOption);
 
@@ -30,7 +30,7 @@ let transactionEntryViewHtml = (accountDetails) => {
     `;
 } ;
 
-let tableHtml = (accounts) =>
+let accountsTableView = (accounts) =>
     `<table>
         <thead>
         <tr>
@@ -53,19 +53,9 @@ let rowHtml = (a) =>
         `;
 
 
-let showAccountsTable = function(accounts) {
-    document.getElementById('table').innerHTML = tableHtml(accounts);
+let show = function(viewFunction, dataSequence, container) {
+    dataSequence.onChange( (data) => container.innerHTML = viewFunction(data) );
 };
 
-let showTransactionEntry = function(accounts) {
-    document.getElementById('transactions').innerHTML = transactionEntryViewHtml(accounts);
-};
-
-let updateViews = function(accounts) {
-    showTransactionEntry(accounts);
-    showAccountsTable(accounts);
-};
-
-generalLedger.accountsByName.onChange(updateViews);
-
-
+show(accountsTableView, generalLedger.accountsByName, document.getElementById('table'));
+show(transactionEntryView, generalLedger.accountsByName, document.getElementById('transactions'));
