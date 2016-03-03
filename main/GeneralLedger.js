@@ -16,19 +16,6 @@ class GeneralLedger {
         })
     }
 
-    aggregate(obj) {
-        let result = {};
-        _.forOwn(obj, (v, name) => {
-            if (_.hasIn(v, 'value')) {
-                Object.defineProperty(result, name, { enumerable: true, get: function () { return v.value; } });
-            } else {
-                result[name] = v;
-            }
-        });
-
-        return result;
-    }
-
     withId(obj) {
         return obj.id ? obj : Object.assign({}, obj, {id: `id_${++this.lastId}`});
     }
@@ -39,8 +26,7 @@ class GeneralLedger {
 
     // model
     buildModel() {
-        let aggregate = this.aggregate,
-            withId = this.withId.bind(this), mergeProperties = this.mergeProperties,
+        let withId = this.withId.bind(this), mergeProperties = this.mergeProperties,
             DEBIT = this.DEBIT, CREDIT = this.CREDIT;
 
         let accountDetails = this.accountInputs.map( withId);
@@ -63,13 +49,13 @@ class GeneralLedger {
 
             let debitTotal = debitTransactions.map(t => debitTotalFor(t, accountId)).sum();
             let creditTotal = creditTransactions.map(t => creditTotalFor(t, accountId)).sum();
-            return aggregate({
+            return {
                 id: accountId,
                 details: details,
                 debitTotal: debitTotal,
                 creditTotal: creditTotal,
                 balance: creditTotal.minus(debitTotal)
-            })
+            }
         };
 
         let accountSummaries = accountIds.map( a => accountSummary(a));
