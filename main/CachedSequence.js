@@ -3,10 +3,11 @@
 class CachedSequence {
 
     constructor(elements) {
-        this._elements = (elements || []).slice()
+            this._elements = (elements || []).slice()
     }
 
     add(entries) {
+        this._notifyBeforeAdd();
         if (entries instanceof CachedSequence) {
             this._elements = this._elements.concat(entries._elements)
         } else if (_.isArray(entries)) {
@@ -14,6 +15,7 @@ class CachedSequence {
         } else {
             this._elements = this._elements.concat([entries])
         }
+        this._notifyAfterAdd();
     }
 
     get length() { return this._updatedElements.length }
@@ -74,6 +76,15 @@ class CachedSequence {
         return this._resolve(this._updatedElements);
     }
 
+    get version() {
+        this._updatedElements.length;
+    }
+
+    onChange(callback) {
+        let handler = this._observeHandler || (this._observeHandler = new ObserveHandler(this));
+        handler.addListener(callback);
+    }
+
     get _updatedElements() {
         this._ensureUpToDate();
         return this._elements;
@@ -95,6 +106,22 @@ class CachedSequence {
         return o;
     }
 
+    _observeUpdates(handler) {
+        this._updateObservers = this._updateObservers || new Set();
+        this._updateObservers.add(handler);
+    }
+
+    _notifyBeforeAdd() {
+        if (this._updateObservers) {
+            this._updateObservers.forEach( o => o.beforeUpdates() );
+        }
+    }
+
+    _notifyAfterAdd() {
+        if (this._updateObservers) {
+            this._updateObservers.forEach( o => o.afterUpdates() );
+        }
+    }
 
 }
 
@@ -127,6 +154,10 @@ class FunctionalCachedSequence extends CachedSequence {
 
     _processAllElements(elements) {
         return elements;
+    }
+
+    _observeUpdates(handler) {
+        this._sources.forEach( s => s._observeUpdates(handler) );
     }
 
 }
@@ -306,6 +337,36 @@ class CombineAggregator {
     get value() {
         let sourceValues = this._sources.map( s => s.value );
         return this._combineFn.apply(this, sourceValues);
+    }
+
+}
+
+
+class ObserveHandler {
+
+    constructor(observed) {
+        this._observed = observed;
+        this._listeners = [];
+        observed._observeUpdates(this);
+    }
+
+    beforeUpdates() {
+        this._previousVersion = this._observed.version;
+    }
+
+    afterUpdates() {
+        if (this._observed.version > this._previousVersion) {
+            this.notifyChange(this._observed.value);
+        }
+    }
+
+    notifyChange(newValue) {
+        this._listeners.forEach( l => l(newValue) );
+    }
+
+    addListener(callback) {
+        this._listeners.push(callback);
+        callback(this._observed.value);
     }
 
 }

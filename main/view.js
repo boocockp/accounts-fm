@@ -1,7 +1,7 @@
 'use strict';
 
 let transactionEntryViewHtml = (accountDetails) => {
-    let accountOption = a => `<option value="${a.id}">${a.name}</option>`;
+    let accountOption = a => `<option value="${a.id}">${a.details.name}</option>`;
     let accountOptions = () => accountDetails.map(accountOption);
 
     return `
@@ -53,21 +53,19 @@ let rowHtml = (a) =>
         `;
 
 
-let showAccountsTable = function() {
-    var accounts = generalLedger.accountsByName;
+let showAccountsTable = function(accounts) {
     document.getElementById('table').innerHTML = tableHtml(accounts);
 };
 
-let showTransactionEntry = function() {
-    var accounts = generalLedger.accountsByName;
+let showTransactionEntry = function(accounts) {
     document.getElementById('transactions').innerHTML = transactionEntryViewHtml(accounts);
 };
 
-let updateViews = function() {
-    showTransactionEntry();
-    showAccountsTable();
+let updateViews = function(accounts) {
+    showTransactionEntry(accounts);
+    showAccountsTable(accounts);
 };
 
-generalLedger.addChangeListener(updateViews);
+generalLedger.accountsByName.onChange(updateViews);
 
 

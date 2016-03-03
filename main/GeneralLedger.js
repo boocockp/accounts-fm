@@ -26,19 +26,6 @@ class GeneralLedger {
         this._inputs[name].add(inputs);
     }
 
-    addChangeListener(listenerFn) {
-        this._listeners.push(listenerFn);
-        listenerFn()
-    }
-
-    _notifyChange() {
-        this._listeners.forEach( l => l() );
-    }
-
-    _inputReceived() {
-        this._notifyChange();
-    }
-
     aggregate(obj) {
         let result = {};
         _.forOwn(obj, (v, name) => {
