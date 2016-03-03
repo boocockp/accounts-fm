@@ -16,16 +16,6 @@ class GeneralLedger {
         })
     }
 
-    // implementation
-    //input(name) {
-    //    return this._inputs[name] || (this._inputs[name] = new CachedSequence());
-    //}
-    //
-    //addInputs(name, inputs) {
-    //    if (!this._inputs[name]) throw new Error(`Unknown input: ${name}`);
-    //    this._inputs[name].add(inputs);
-    //}
-    //
     aggregate(obj) {
         let result = {};
         _.forOwn(obj, (v, name) => {

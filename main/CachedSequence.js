@@ -220,11 +220,20 @@ class MergeCachedSequence extends FunctionalCachedSequence {
 
 class Aggregator {
 
+    constructor(sources) {
+
+    }
+
+    get version() {
+        throw new Error("Not implemented");
+    }
+
 }
 
-class ReduceAggregator {
+class ReduceAggregator extends Aggregator {
 
     constructor(source, reduceFn, initialAcc) {
+        super([source]);
         this._source = source;
         this._sourceIndex = 0;
         this._reduceFn = reduceFn;
@@ -261,9 +270,10 @@ class SplitByAggregator extends ReduceAggregator {
 
 }
 
-class SumAggregator {
+class SumAggregator extends Aggregator {
 
     constructor(source) {
+        super([source]);
         this._source = source;
         this._sourceIndex = 0;
         this._value = 0;
@@ -301,9 +311,10 @@ class SumAggregator {
 
 }
 
-class CountAggregator {
+class CountAggregator extends Aggregator {
 
     constructor(source) {
+        super([source]);
         this._source = source;
         this._sourceIndex = 0;
         this._value = 0;
@@ -327,9 +338,10 @@ class CountAggregator {
 
 }
 
-class CombineAggregator {
+class CombineAggregator extends Aggregator {
 
     constructor(combineFn, sources ) {
+        super(sources);
         this._sources = sources;
         this._combineFn = combineFn;
     }
