@@ -6,10 +6,10 @@ let CREDIT = 'CR';
 class GeneralLedger {
 
 
-    constructor() {
+    constructor(accountInputs, transactionInputs) {
         this.lastId = 1000;
-        this._inputs = {};
-        this._listeners = [];
+        this.accountInputs = accountInputs;
+        this.transactionInputs = transactionInputs || new CachedSequence();
 
         _.forIn(this.buildModel(), (propFn, name) => {
             this[name] = propFn;
@@ -17,15 +17,15 @@ class GeneralLedger {
     }
 
     // implementation
-    input(name) {
-        return this._inputs[name] || (this._inputs[name] = new CachedSequence());
-    }
-
-    addInputs(name, inputs) {
-        if (!this._inputs[name]) throw new Error(`Unknown input: ${name}`);
-        this._inputs[name].add(inputs);
-    }
-
+    //input(name) {
+    //    return this._inputs[name] || (this._inputs[name] = new CachedSequence());
+    //}
+    //
+    //addInputs(name, inputs) {
+    //    if (!this._inputs[name]) throw new Error(`Unknown input: ${name}`);
+    //    this._inputs[name].add(inputs);
+    //}
+    //
     aggregate(obj) {
         let result = {};
         _.forOwn(obj, (v, name) => {
@@ -49,12 +49,12 @@ class GeneralLedger {
 
     // model
     buildModel() {
-        let aggregate = this.aggregate, input = this.input.bind(this),
+        let aggregate = this.aggregate,
             withId = this.withId.bind(this), mergeProperties = this.mergeProperties,
             DEBIT = this.DEBIT, CREDIT = this.CREDIT;
 
-        let accountDetails = input('accountDetails').map( withId);
-        let transactions = input('transactions').map( withId);
+        let accountDetails = this.accountInputs.map( withId);
+        let transactions = this.transactionInputs.map( withId);
 
         let accountIds = accountDetails.property('id').distinct();
 

@@ -1,11 +1,11 @@
 'use strict';
 
-let generalLedgerInputSource = new LocalStorageInputSource("generalLedger.inputs");
+let generalLedgerInputs = new LocalStorageInputSource("generalLedger.inputs");
 
 function enterAccountDetails(e) {
     e.preventDefault();
     let form = $(e.target);
-    generalLedgerInputSource.add({
+    generalLedgerInputs.add({
         name: form.find("[name=name]").val()
     })
 }

@@ -77,7 +77,7 @@ class CachedSequence {
     }
 
     get version() {
-        this._updatedElements.length;
+        return this._updatedElements.length;
     }
 
     onChange(callback) {

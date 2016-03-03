@@ -1,6 +1,6 @@
 'use strict';
 
-class LocalStorageInputSource extends InputSource {
+class LocalStorageInputSource extends CachedSequence {
 
     constructor(key) {
         if (!key) throw new Error("Local storage key required");
@@ -12,7 +12,7 @@ class LocalStorageInputSource extends InputSource {
     add(inputs) {
         super.add(inputs);
         try {
-            localStorage.setItem(this._key, JSON.stringify(this._inputs));
+            localStorage.setItem(this._key, JSON.stringify(this.value));
         } catch (e) {
             console.error('Could not save inputs', e.message);
         }
