@@ -2,8 +2,14 @@ To Do
 =====
 
 - Transaction Entry
+- Account updates
 - Ensure version correct for all classes
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
 - Update only select values when accounts change, leave form entries
+- Active view components
+- Single stored input sequence
+
+Done
+----
     - Accounts by name sorted
-- View object resolution
+    - View object resolution

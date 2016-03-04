@@ -26,8 +26,7 @@ class GeneralLedger {
 
     // model
     buildModel() {
-        let withId = this.withId.bind(this), mergeProperties = this.mergeProperties,
-            DEBIT = this.DEBIT, CREDIT = this.CREDIT;
+        let withId = this.withId.bind(this), mergeProperties = this.mergeProperties;
 
         let accountDetails = this.accountInputs.map( withId);
         let transactions = this.transactionInputs.map( withId);
@@ -35,11 +34,11 @@ class GeneralLedger {
         let accountIds = accountDetails.property('id').distinct();
 
         let hasPostingFor = (transaction, accountId) => _.some(transaction.postings, p => p.accountId == accountId);
-        let hasDebitPostingFor = (transaction, accountId) => _.some(transaction.postings, p => p.type = DEBIT && p.accountId == accountId);
-        let hasCreditPostingFor = (transaction, accountId) => _.some(transaction.postings, p => p.type = CREDIT && p.accountId == accountId);
+        let hasDebitPostingFor = (transaction, accountId) => _.some(transaction.postings, p => p.type == DEBIT && p.accountId == accountId);
+        let hasCreditPostingFor = (transaction, accountId) => _.some(transaction.postings, p => p.type == CREDIT && p.accountId == accountId);
 
-        let debitTotalFor = (transaction, accountId) =>_.chain(transaction.postings).filter( p => p.type = DEBIT && p.accountId == accountId).map( p => p.amount).sum();
-        let creditTotalFor = (transaction, accountId) =>_.chain(transaction.postings).filter( p => p.type = CREDIT && p.accountId == accountId).map( p => p.amount).sum();
+        let debitTotalFor = (transaction, accountId) =>_.chain(transaction.postings).filter( p => p.type == DEBIT && p.accountId == accountId).map( p => p.amount).sum();
+        let creditTotalFor = (transaction, accountId) =>_.chain(transaction.postings).filter( p => p.type == CREDIT && p.accountId == accountId).map( p => p.amount).sum();
 
         let accountSummary = accountId => {
             let details = accountDetails.filterBy('id', accountId).reduce(mergeProperties, {});
@@ -51,9 +50,12 @@ class GeneralLedger {
             let creditTotal = creditTransactions.map(t => creditTotalFor(t, accountId)).sum();
             return {
                 id: accountId,
-                details: details,
-                debitTotal: debitTotal,
-                creditTotal: creditTotal,
+                details,
+                accountTransactions,
+                debitTransactions,
+                creditTransactions,
+                debitTotal,
+                creditTotal,
                 balance: creditTotal.minus(debitTotal)
             }
         };

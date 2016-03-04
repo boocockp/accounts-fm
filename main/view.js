@@ -19,10 +19,28 @@ let transactionEntryView = (accountDetails) => {
         <div>
             <label>Posting 1</label>
             <select name="posting1.accountId">
-            ${accountOptions()}
+                ${accountOptions()}
+            </select>
+            <select name="posting1.type">
+                <option value="DR">Debit</option>
+                <option value="CR">Credit</option>
             </select>
             <input type="text" name="posting1.amount" value="">
         </div>
+
+        <div>
+            <label>Posting 2</label>
+            <select name="posting2.accountId">
+            ${accountOptions()}
+            </select>
+            <select name="posting2.type">
+                <option value="DR">Debit</option>
+                <option value="CR">Credit</option>
+            </select>
+            <input type="text" name="posting2.amount" value="">
+        </div>
+
+
         <div>
             <button type="submit">Save</button>
         </div>
