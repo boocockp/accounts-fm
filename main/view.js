@@ -1,21 +1,70 @@
 'use strict';
 
 
-let accountsTableView = (accounts) =>
-    `<table>
-        <thead>
-        <tr>
-        <th>Name</th>
-        <th>Balance</th>
-        </tr>
-        </thead>
-        <tbody>
-        ${accounts.map(function (a) {
-        return rowHtml(a);
-    }).join('\n')}
-        </tbody>
-    </table>
-    `;
+class AccountsTableView {
+    constructor(accountSummaries) {
+        this._accountSummaries = accountSummaries;
+    }
+
+    get html() {
+        if (!this._html) {
+            this._html = this._html || new ConstantCachedSequence(
+                    `<table>
+                        <thead>
+                        <tr>
+                        <th>Name</th>
+                        <th>Balance</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{accountRows}}
+                        </tbody>
+                    </table>
+                    `);
+
+            return this._html;
+        }
+    }
+
+    get accountRows() {
+        return this._accountRows || (this._accountRows = new AccountRowsView(this._accountSummaries));
+    }
+
+    get eventsRequired() {
+        return [];
+    }
+
+    notifyEvent(e) {
+
+    }
+}
+
+class AccountRowsView {
+    constructor(accountSummaries) {
+        let accToRow = a => {
+            return `<tr>
+                    <td>${a.details.value.name}</td>
+                    <td>${a.balance.value}</td>
+                    </tr>
+                    `
+        };
+
+        this._html = accountSummaries.map(accToRow).join('\n');
+    }
+
+    get html() {
+        return this._html;
+    }
+
+    get eventsRequired() {
+        return [];
+    }
+
+    notifyEvent(e) {
+
+    }
+
+}
 
 
 let lastRowId = 0;
@@ -127,7 +176,7 @@ let show = function (viewFunction, dataSequence, container) {
     dataSequence.onChange((data) => container.innerHTML = viewFunction(data));
 };
 
-show(accountsTableView, generalLedger.accountsByName, document.getElementById('table'));
+//show(accountsTableView, generalLedger.accountsByName, document.getElementById('table'));
 //show(transactionEntryView, generalLedger.accountInfos, document.getElementById('transactions'));
 
 
@@ -135,18 +184,24 @@ function render(viewModel, container) {
     viewModel.html.onChange(function (html) {
         container.innerHTML = html;
 
-        let placeholders = document.evaluate('//text()[contains(., "{{") and contains(., "}}")]', container, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-        console.log('xpath placeholders', placeholders);
+        let placeholderSnapshot = document.evaluate('.//text()[contains(., "{{") and contains(., "}}")]', container, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        // console.log('xpath placeholders', placeholderSnapshot);
 
-        for (let i = 0; i < placeholders.snapshotLength; i++) {
-            let placeholderNode = placeholders.snapshotItem(i);
-            let placeholderParent = placeholderNode.parentNode;
-            let placeholderName = placeholderNode.textContent.match(/\{\{ *(\w+) *\}\}/)[1];
-            let placeholderViewModel = transactionEntryView[placeholderName];
-            render(placeholderViewModel, placeholderParent);
+        let placeholderNodes = [];
+        for (let i = 0; i < placeholderSnapshot.snapshotLength; i++) {
+            placeholderNodes.push(placeholderSnapshot.snapshotItem(i));
         }
+
+        placeholderNodes.forEach( n => {
+            let placeholderParent = n.parentNode;
+            let placeholderName = n.textContent.match(/\{\{ *(\w+) *\}\}/)[1];
+            let placeholderViewModel = viewModel[placeholderName];
+            render(placeholderViewModel, placeholderParent);
+        });
     })
 }
 
 let transactionEntryView = new TransactionEntryView(generalLedger.accountInfos);
+ let accountsTableView = new AccountsTableView(generalLedger.accountSummaries);
 render(transactionEntryView, document.getElementById('transactions'));
+render(accountsTableView, document.getElementById('table'));
