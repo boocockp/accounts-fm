@@ -89,8 +89,8 @@ class CachedSequence {
     }
 
     join(sep) {
-        var els = this.value;
-        return els.join(sep);
+        this._joinAggregator = this._joinAggregator || new JoinAggregator(this, sep);
+        return this._joinAggregator;
     }
 
     get value() {
@@ -102,8 +102,8 @@ class CachedSequence {
     }
 
     onChange(callback) {
-        let handler = this._observeHandler || (this._observeHandler = new ObserveHandler(this));
-        handler.addListener(callback);
+        this._observeHandler = this._observeHandler|| new ObserveHandler(this);
+        this._observeHandler.addListener(callback);
     }
 
     get _updatedElements() {
@@ -130,6 +130,14 @@ class CachedSequence {
         }
     }
 
+}
+
+
+class ConstantCachedSequence extends CachedSequence {
+
+    constructor(value) {
+        super([value], x => x)
+    }
 }
 
 
@@ -228,11 +236,20 @@ class MergeCachedSequence extends FunctionalCachedSequence {
 class Aggregator {
 
     constructor(sources) {
-
+        this._sources = sources;
     }
 
     get version() {
-        throw new Error("Not implemented");
+        return _.sum(this._sources.map( s => s.version ));
+    }
+
+    onChange(callback) {
+        this._observeHandler = this._observeHandler|| new ObserveHandler(this);
+        this._observeHandler.addListener(callback);
+    }
+
+    _observeUpdates(handler) {
+        this._sources.forEach( s => s._observeUpdates(handler) );
     }
 
 }
@@ -316,6 +333,34 @@ class SumAggregator extends Aggregator {
         return oldValue + (_.sum(elements) || 0);
     }
 
+}
+
+class JoinAggregator extends Aggregator {
+
+    constructor(source, separator) {
+        super([source]);
+        this._separator = separator;
+        this._source = source;
+        this._sourceIndex = 0;
+        this._value = "";
+    }
+
+    get value() {
+        this._ensureUpToDate();
+        return this._value;
+    }
+
+    _ensureUpToDate() {
+        let sourceElements = this._source._updatedElements;
+        let unprocessedSourceElements = sourceElements.slice(this._sourceIndex);
+        this._value = this._processElements(this._value, unprocessedSourceElements);
+        this._sourceIndex = sourceElements.length;
+    }
+
+    _processElements(oldValue, elements) {
+        let newPart = elements.join(this._separator);
+        return oldValue ?  oldValue + this._separator + newPart : newPart;
+    }
 }
 
 class CountAggregator extends Aggregator {
