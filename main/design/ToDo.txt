@@ -1,6 +1,7 @@
 To Do
 =====
 
+- Sort out _resolve so accountInfos does not need intermediate object - handle Aggregate and CachedSequence specially
 - Transaction Entry
 - Account updates
 - Ensure version correct for all classes

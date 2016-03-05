@@ -40,6 +40,8 @@ class GeneralLedger {
         let debitTotalFor = (transaction, accountId) =>_.chain(transaction.postings).filter( p => p.type == DEBIT && p.accountId == accountId).map( p => p.amount).sum();
         let creditTotalFor = (transaction, accountId) =>_.chain(transaction.postings).filter( p => p.type == CREDIT && p.accountId == accountId).map( p => p.amount).sum();
 
+        let accountInfo = accountId =>  accountDetails.filterBy('id', accountId).reduce(mergeProperties, {});
+
         let accountSummary = accountId => {
             let details = accountDetails.filterBy('id', accountId).reduce(mergeProperties, {});
             let accountTransactions = transactions.filter( t => hasPostingFor(t, accountId));
@@ -60,10 +62,11 @@ class GeneralLedger {
             }
         };
 
+        let accountInfos = accountIds.map( a => accountInfo(a));
         let accountSummaries = accountIds.map( a => accountSummary(a));
         let accountsByName = accountSummaries.sort( a => a.details.name );
 
-        return {accountIds, accountSummaries, accountsByName};
+        return {accountIds, accountInfos, accountSummaries, accountsByName};
     }
 
 }

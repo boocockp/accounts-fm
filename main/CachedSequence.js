@@ -1,5 +1,26 @@
 'use strict';
 
+
+function _resolve(o) {
+    if (_.isArray(o)) {
+        return o.map( _resolve );
+    }
+
+    if (o instanceof CachedSequence) {
+        return o.value;
+    }
+
+    if (o instanceof Aggregator) {
+        return o.value;
+    }
+
+    if (_.isObject(o)) {
+        return _.mapValues(o, _resolve );
+    }
+
+    return o;
+}
+
 class CachedSequence {
 
     constructor(elements) {
@@ -73,7 +94,7 @@ class CachedSequence {
     }
 
     get value() {
-        return this._resolve(this._updatedElements);
+        return _resolve(this._updatedElements);
     }
 
     get version() {
@@ -91,20 +112,6 @@ class CachedSequence {
     }
 
     _ensureUpToDate() {}
-
-    _resolve(o) {
-        if (_.isArray(o)) {
-            return o.map( this._resolve );
-        }
-
-        if (_.isObject(o)) {
-            return _.mapValues(o, function(v) {
-                return _.hasIn(v, 'value') ? v.value : v;
-            });
-        }
-
-        return o;
-    }
 
     _observeUpdates(handler) {
         this._updateObservers = this._updateObservers || new Set();

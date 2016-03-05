@@ -1,7 +1,7 @@
 'use strict';
 
 let transactionEntryView = (accountDetails) => {
-    let accountOption = a => `<option value="${a.id}">${a.details.name}</option>`;
+    let accountOption = a => `<option value="${a.id}">${a.name}</option>`;
     let accountOptions = () => accountDetails.map(accountOption);
 
     return `
@@ -63,12 +63,19 @@ let accountsTableView = (accounts) =>
     `;
 
 
-let rowHtml = (a) =>
-    `<tr>
-        <td>${a.details.name}</td>
-        <td>${a.balance}</td>
+let lastRowId = 0;
+let rowHtml = (acct) => {
+    let rowId = "row_" + (++lastRowId);
+    return `<tr>
+        <td>${acct.details.name}</td>
+        <td>${acct.balance}</td>
         </tr>
         `;
+};
+
+
+
+
 
 
 let show = function(viewFunction, dataSequence, container) {
@@ -76,4 +83,4 @@ let show = function(viewFunction, dataSequence, container) {
 };
 
 show(accountsTableView, generalLedger.accountsByName, document.getElementById('table'));
-show(transactionEntryView, generalLedger.accountsByName, document.getElementById('transactions'));
+show(transactionEntryView, generalLedger.accountInfos, document.getElementById('transactions'));
