@@ -101,19 +101,12 @@ class AccountOptionsView {
 
     get html() {
         if (!this._html) {
-
             let accInfoToOption = a => {
-                //console.log(a);
-                return `<option value="${a.id}">${a.name}</option>`
-                };
+                let accInfo = a.value;
+                return `<option value="${accInfo.id}">${accInfo.name}</option>`
+            };
 
-            let aggregatorToAccInfo = a => {
-                return a.value
-            };
-            let aggToOption = (agg) => {
-                return accInfoToOption(aggregatorToAccInfo(agg));
-            };
-            this._html = this._accountInfos.map(aggToOption).join('\n');
+            this._html = this._accountInfos.map(accInfoToOption).join('\n');
         }
 
         return this._html;
@@ -137,23 +130,23 @@ let show = function (viewFunction, dataSequence, container) {
 show(accountsTableView, generalLedger.accountsByName, document.getElementById('table'));
 //show(transactionEntryView, generalLedger.accountInfos, document.getElementById('transactions'));
 
+
+function render(viewModel, container) {
+    viewModel.html.onChange(function (html) {
+        container.innerHTML = html;
+
+        let placeholders = document.evaluate('//text()[contains(., "{{") and contains(., "}}")]', container, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        console.log('xpath placeholders', placeholders);
+
+        for (let i = 0; i < placeholders.snapshotLength; i++) {
+            let placeholderNode = placeholders.snapshotItem(i);
+            let placeholderParent = placeholderNode.parentNode;
+            let placeholderName = placeholderNode.textContent.match(/\{\{ *(\w+) *\}\}/)[1];
+            let placeholderViewModel = transactionEntryView[placeholderName];
+            render(placeholderViewModel, placeholderParent);
+        }
+    })
+}
+
 let transactionEntryView = new TransactionEntryView(generalLedger.accountInfos);
-
-transactionEntryView.html.onChange(function (h) {
-    let container = document.getElementById('transactions');
-    container.innerHTML = h;
-
-    let placeholders = document.evaluate('//text()[contains(., "{{") and contains(., "}}")]', container, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    console.log('xpath placeholders', placeholders);
-
-    for (let i = 0; i < placeholders.snapshotLength; i++) {
-        let placeholderNode = placeholders.snapshotItem(i);
-        let placeholderParent = placeholderNode.parentNode;
-        let placeholderName = placeholderNode.textContent.match(/\{\{ *(\w+) *\}\}/)[1];
-        let parentViewProperty = transactionEntryView[placeholderName];
-        parentViewProperty.html.onChange(function (newContent) {
-            placeholderParent.innerHTML = newContent;
-        });
-    }
-});
-
+render(transactionEntryView, document.getElementById('transactions'));
