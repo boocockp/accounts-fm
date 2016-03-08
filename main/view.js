@@ -1,44 +1,6 @@
 'use strict';
 
 
-class AccountsTableView {
-    constructor(accountSummaries) {
-        this._accountSummaries = accountSummaries;
-    }
-
-    get html() {
-        if (!this._html) {
-            this._html = this._html || new ConstantCachedSequence(
-                    `<table>
-                        <thead>
-                        <tr>
-                        <th>Name</th>
-                        <th>Balance</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {{accountRows}}
-                        </tbody>
-                    </table>
-                    `);
-
-            return this._html;
-        }
-    }
-
-    get accountRows() {
-        return this._accountRows || (this._accountRows = new AccountRowsView(this._accountSummaries));
-    }
-
-    get eventsRequired() {
-        return [];
-    }
-
-    notifyEvent(e) {
-
-    }
-}
-
 var AccountsTableProto = Object.create(HTMLElement.prototype, {
     accountSummaries: {
         get: function () {
@@ -77,47 +39,6 @@ AccountsTableProto.attachedCallback = function () {
 var AccountsTable = document.registerElement('accounts-table', {prototype: AccountsTableProto});
 
 
-
-class AccountRowsView {
-    constructor(accountSummaries) {
-        let accToRow = a => {
-            return `<tr>
-                    <td>${a.details.value.name}</td>
-                    <td>${a.balance.value}</td>
-                    </tr>
-                    `
-        };
-
-        this._html = accountSummaries.map(accToRow).join('\n');
-    }
-
-    get html() {
-        return this._html;
-    }
-
-    get eventsRequired() {
-        return [];
-    }
-
-    notifyEvent(e) {
-
-    }
-
-}
-
-
-let lastRowId = 0;
-let rowHtml = (acct) => {
-    let rowId = "row_" + (++lastRowId);
-    return `<tr>
-        <td>${acct.details.name}</td>
-        <td>${acct.balance}</td>
-        </tr>
-        `;
-};
-
-
-
 var TransactionEntryProto = Object.create(HTMLElement.prototype, {
     accountInfos: {
         get: function () {
@@ -135,12 +56,6 @@ var TransactionEntryProto = Object.create(HTMLElement.prototype, {
 });
 
 TransactionEntryProto.attachedCallback = function () {
-    let accInfoToOption = a => {
-        let accInfo = a.value;
-        return `<option value="${accInfo.id}">${accInfo.name}</option>`
-    };
-
-    let accountOptions = this._accountInfos.map(accInfoToOption).join('\n').value;
     this.innerHTML = `
         <h3>Transaction Entry</h3>
         <form action="">
@@ -156,9 +71,6 @@ TransactionEntryProto.attachedCallback = function () {
             <div>
                 <label>Posting 1</label>
                 <account-select account-infos="{{accountInfos}}"></account-select>
-                <select name="posting1.accountId">
-                   ${accountOptions}
-                </select>
                 <select name="posting1.type">
                     <option value="DR">Debit</option>
                     <option value="CR">Credit</option>
@@ -168,9 +80,7 @@ TransactionEntryProto.attachedCallback = function () {
 
             <div>
                 <label>Posting 2</label>
-                <select name="posting2.accountId">
-                    ${accountOptions}
-                </select>
+                <account-select account-infos="{{accountInfos}}"></account-select>
                 <select name="posting2.type">
                     <option value="DR">Debit</option>
                     <option value="CR">Credit</option>
@@ -188,34 +98,6 @@ TransactionEntryProto.attachedCallback = function () {
 
 var TransactionEntry = document.registerElement('transaction-entry', {prototype: TransactionEntryProto});
 
-
-class AccountOptionsView {
-    constructor(accountInfos) {
-        this._accountInfos = accountInfos;
-    }
-
-    get html() {
-        if (!this._html) {
-            let accInfoToOption = a => {
-                let accInfo = a.value;
-                return `<option value="${accInfo.id}">${accInfo.name}</option>`
-            };
-
-            this._html = this._accountInfos.map(accInfoToOption).join('\n');
-        }
-
-        return this._html;
-    }
-
-    get eventsRequired() {
-        return [];
-    }
-
-    notifyEvent(e) {
-
-    }
-
-}
 
 var AccountSelectProto = Object.create(HTMLElement.prototype, {
     name: {
@@ -240,18 +122,23 @@ var AccountSelectProto = Object.create(HTMLElement.prototype, {
 
 AccountSelectProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
+    this.accountInfos.onChange( () => this.innerHTML = this.html() );
+};
+
+AccountSelectProto.html = function () {
     let accInfoToOption = a => {
         let accInfo = a.value;
         return `<option value="${accInfo.id}">${accInfo.name}</option>`
     };
 
     let accountOptions = this.accountInfos ? this.accountInfos.map(accInfoToOption).join('\n').value : [];
-    this.innerHTML = `
+    return `
                 <select name="${this.name}">
                    ${accountOptions}
                 </select>
         `;
 };
+
 
 AccountSelectProto.attributeChangedCallback = function(attrName, oldVal, newVal) {
     console.log(this.tagName, 'attributeChangedCallback', attrName, oldVal, newVal);
