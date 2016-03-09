@@ -13,6 +13,11 @@ var AccountsTableProto = Object.create(HTMLElement.prototype, {
 });
 
 AccountsTableProto.attachedCallback = function () {
+    console.log(this.tagName, 'attachedCallback');
+    this.accountSummaries.onChange( () => this.innerHTML = this.html() );
+};
+
+AccountsTableProto.html = function () {
     let accToRow = a => {
         return `<tr>
                     <td>${a.details.value.name}</td>
@@ -22,7 +27,7 @@ AccountsTableProto.attachedCallback = function () {
     };
 
     let accountRows = this._accountSummaries.map(accToRow).join('\n').value;
-    this.innerHTML = `<table>
+    return `<table>
                         <thead>
                         <tr>
                         <th>Name</th>
@@ -46,11 +51,6 @@ var TransactionEntryProto = Object.create(HTMLElement.prototype, {
         },
         set: function (ai) {
             this._accountInfos = ai;
-        }
-    },
-    foo: {
-        value: function () {
-            alert('foo() called');
         }
     }
 });
@@ -145,7 +145,6 @@ AccountSelectProto.attributeChangedCallback = function(attrName, oldVal, newVal)
 };
 
 var AccountSelect = document.registerElement('account-select', {prototype: AccountSelectProto});
-
 
 
 var transactionEntryView = new TransactionEntry();
