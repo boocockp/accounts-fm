@@ -1,15 +1,36 @@
 'use strict';
 
-
-var AccountsTableProto = Object.create(HTMLElement.prototype, {
-    accountSummaries: {
+function attributePropertyDef(name) {
+    let internalName = '_' + name;
+    return {
         get: function () {
-            return this._accountSummaries;
+            if (this[internalName]) return this[internalName];
+
+            let propertyAttr = this.getAttribute(_.kebabCase(name));
+            let exprMatch = propertyAttr.match(/\{\{([a-zA-Z0-9_.]+)\}\}/);
+            if (!exprMatch) return propertyAttr;
+            let propertyPath = exprMatch[1];
+            let firstPart = propertyPath.split('.').shift();
+            if (!firstPart) return null;
+
+            let elWithData = this.parentElement;
+            while (elWithData && !_.hasIn(elWithData, firstPart)) {
+                elWithData = elWithData.parentElement;
+            }
+
+            if (!elWithData) elWithData = window;
+
+            return _.get(elWithData, propertyPath);
         },
-        set: function (as) {
-            this._accountSummaries = as;
+        set: function (val) {
+            this[internalName] = val;
         }
     }
+}
+
+
+var AccountsTableProto = Object.create(HTMLElement.prototype, {
+    accountSummaries: attributePropertyDef('accountSummaries')
 });
 
 AccountsTableProto.attachedCallback = function () {
@@ -26,7 +47,7 @@ AccountsTableProto.html = function () {
                     `
     };
 
-    let accountRows = this._accountSummaries.map(accToRow).join('\n').value;
+    let accountRows = this.accountSummaries.map(accToRow).join('\n').value;
     return `<table>
                         <thead>
                         <tr>
@@ -45,19 +66,11 @@ var AccountsTable = document.registerElement('accounts-table', {prototype: Accou
 
 
 var TransactionEntryProto = Object.create(HTMLElement.prototype, {
-    accountInfos: {
-        get: function () {
-            return this._accountInfos;
-        },
-        set: function (ai) {
-            this._accountInfos = ai;
-        }
-    }
+    accountInfos: attributePropertyDef('accountInfos')
 });
 
 TransactionEntryProto.attachedCallback = function () {
     this.innerHTML = `
-        <h3>Transaction Entry</h3>
         <form action="">
             <div>
                 <label>Date</label>
@@ -139,18 +152,8 @@ AccountSelectProto.html = function () {
         `;
 };
 
-
 AccountSelectProto.attributeChangedCallback = function(attrName, oldVal, newVal) {
     console.log(this.tagName, 'attributeChangedCallback', attrName, oldVal, newVal);
 };
 
 var AccountSelect = document.registerElement('account-select', {prototype: AccountSelectProto});
-
-
-var transactionEntryView = new TransactionEntry();
-transactionEntryView.accountInfos = generalLedger.accountInfos;
-document.getElementById('transactions').appendChild(transactionEntryView);
-
-let accountsTableView = new AccountsTable();
-accountsTableView.accountSummaries = generalLedger.accountSummaries
-document.getElementById('table').appendChild(accountsTableView);

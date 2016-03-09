@@ -20,11 +20,11 @@
             float: left;
         }
 
-        div#table table {
+        #table table {
             border: 1px solid gray;
             border-collapse: collapse;
         }
-        div#table table th, div#table table td {
+        #table table th, #table table td {
             border: 1px solid gray;
             padding: 5px;
             min-width: 5em;
@@ -48,13 +48,15 @@
     </form>
 </div>
 
-<div id="transactions" class="frame">
+<div class="frame">
+    <h3>Transaction Entry</h3>
+    <transaction-entry account-infos="{{generalLedger.accountInfos}}"></transaction-entry>
 </div>
 
 
 <div id="output" class="frame">
     <h3>Accounts</h3>
-    <div id="table"></div>
+    <accounts-table id="table" account-summaries="{{generalLedger.accountSummaries}}"></accounts-table>
 </div>
 
 <script src="lib/lodash.js"></script>

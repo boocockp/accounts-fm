@@ -1,3 +1,3 @@
 'use strict';
 
-let generalLedger = new GeneralLedger(accountInputs, transactionInputs);
+var generalLedger = new GeneralLedger(accountInputs, transactionInputs);
