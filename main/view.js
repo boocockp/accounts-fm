@@ -49,21 +49,65 @@ AccountsTableProto.html = function () {
 
     let accountRows = this.accountSummaries.map(accToRow).join('\n').value;
     return `<table>
-                        <thead>
-                        <tr>
-                        <th>Name</th>
-                        <th>Balance</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        ${accountRows}
-                        </tbody>
-                    </table>
-                    `;
+            <thead>
+            <tr>
+            <th>Name</th>
+            <th>Balance</th>
+            </tr>
+            </thead>
+            <tbody>
+            ${accountRows}
+            </tbody>
+        </table>
+        `;
 };
 
 var AccountsTable = document.registerElement('accounts-table', {prototype: AccountsTableProto});
 
+
+var AccountUpdateProto = Object.create(HTMLElement.prototype, {
+    accountDetails: {
+        get: function() {
+            return this.accountDetailsChanges.value;
+        },
+        enumerable: true
+    },
+    accountDetailsChanges: {
+        get: function() { 
+            return this._accountDetails || (this._accountDetails = new DataSequence()); 
+            },
+        enumerable: true
+    }
+});
+
+AccountUpdateProto.attachedCallback = function () {
+    console.log(this.tagName, 'attachedCallback');
+    this.innerHTML = this.html();
+
+    function enterAccountDetails(e) {
+        e.preventDefault();
+        let form = $(e.target);
+        this.accountDetailsChanges.add({
+            name: form.find("[name=name]").val()
+        });
+    }
+
+    $(this).on('submit', enterAccountDetails.bind(this));
+};
+
+AccountUpdateProto.html = function() {
+    return `<form action="">
+        <div>
+        <label>Name</label>
+        <input type="text" name="name" value="">
+        </div>
+        <div>
+        <button type="submit">Save</button>
+        </div>
+        </form>`;
+};
+
+var AccountUpdate = document.registerElement('account-update', {prototype: AccountUpdateProto});
 
 var TransactionEntryProto = Object.create(HTMLElement.prototype, {
     accountInfos: attributePropertyDef('accountInfos')

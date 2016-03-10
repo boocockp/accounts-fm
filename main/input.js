@@ -3,13 +3,15 @@
 let accountInputs = new LocalStorageInputSource("generalLedger.accountInputs");
 let transactionInputs = new LocalStorageInputSource("generalLedger.transactionInputs");
 
-function enterAccountDetails(e) {
-    e.preventDefault();
-    let form = $(e.target);
-    accountInputs.add({
-        name: form.find("[name=name]").val()
-    })
-}
+var generalLedger = new GeneralLedger(accountInputs, transactionInputs);
+
+//function enterAccountDetails(e) {
+//    e.preventDefault();
+//    let form = $(e.target);
+//    accountInputs.add({
+//        name: form.find("[name=name]").val()
+//    })
+//}
 
 function enterTransaction(e) {
     e.preventDefault();
@@ -32,8 +34,9 @@ function enterTransaction(e) {
 }
 
 let initPage = () => {
-    $('#accountDetails').on('submit', enterAccountDetails);
+    //$('#accountDetails').on('submit', enterAccountDetails);
+    //$('account-update').get(0).accountDetailsChanges.onChange( a => accountInputs.add(a) );
     $('#transactions').on('submit', enterTransaction);
 };
 
-initPage();
+$(initPage);

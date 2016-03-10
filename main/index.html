@@ -30,22 +30,22 @@
             min-width: 5em;
         }
     </style>
+    <script src="lib/lodash.js"></script>
+    <script src="lib/jquery-2.2.1.js"></script>
+    <script src="DataSequence.js"></script>
+    <script src="CachedSequence.js"></script>
+    <script src="InputSource.js"></script>
+    <script src="LocalStorageInputSource.js"></script>
+    <script src="GeneralLedger.js"></script>
+    <script src="view.js"> </script>
+    <script src="input.js"> </script>
 </head>
 <body>
 
 <h2>Accounts</h2>
 <div id="accountDetails" class="frame">
     <h3>Account Details</h3>
-
-    <form action="">
-        <div>
-            <label>Name</label>
-            <input type="text" name="name" value="">
-        </div>
-        <div>
-            <button type="submit">Save</button>
-        </div>
-    </form>
+    <account-update></account-update>
 </div>
 
 <div class="frame">
@@ -59,16 +59,10 @@
     <accounts-table id="table" account-summaries="{{generalLedger.accountSummaries}}"></accounts-table>
 </div>
 
-<script src="lib/lodash.js"></script>
-<script src="lib/jquery-2.2.1.js"></script>
+<script>
+    $('account-update').get(0).accountDetailsChanges.onChange( function(a) { accountInputs.add(a) });
 
-<script src="CachedSequence.js"></script>
-<script src="InputSource.js"></script>
-<script src="LocalStorageInputSource.js"></script>
-<script src="GeneralLedger.js"></script>
-<script src="input.js"> </script>
-<script src="model.js"> </script>
-<script src="view.js"> </script>
+</script>
 
 </body>
 </html>

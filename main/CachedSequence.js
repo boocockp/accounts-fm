@@ -1,26 +1,6 @@
 'use strict';
 
 
-function _resolve(o) {
-    if (_.isArray(o)) {
-        return o.map( _resolve );
-    }
-
-    if (o instanceof CachedSequence) {
-        return o.value;
-    }
-
-    if (o instanceof Aggregator) {
-        return o.value;
-    }
-
-    if (_.isObject(o)) {
-        return _.mapValues(o, _resolve );
-    }
-
-    return o;
-}
-
 class CachedSequence {
 
     constructor(elements) {
@@ -430,7 +410,9 @@ class ObserveHandler {
 
     addListener(callback) {
         this._listeners.push(callback);
-        callback(this._observed.value);
+        if (this._observed.value !== undefined) {
+            callback(this._observed.value);
+        }
     }
 
 }
