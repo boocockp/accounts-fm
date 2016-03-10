@@ -74,7 +74,7 @@ var AccountUpdateProto = Object.create(HTMLElement.prototype, {
     },
     accountDetailsChanges: {
         get: function() { 
-            return this._accountDetails || (this._accountDetails = new DataSequence()); 
+            return this._transaction || (this._transaction = new DataSequence());
             },
         enumerable: true
     }
@@ -110,11 +110,51 @@ AccountUpdateProto.html = function() {
 var AccountUpdate = document.registerElement('account-update', {prototype: AccountUpdateProto});
 
 var TransactionEntryProto = Object.create(HTMLElement.prototype, {
-    accountInfos: attributePropertyDef('accountInfos')
+    accountInfos: attributePropertyDef('accountInfos'),
+    transaction: {
+        get: function() {
+            return this.transactionChanges.value;
+        },
+        enumerable: true
+    },
+    transactionChanges: {
+        get: function() {
+            return this._transaction || (this._transaction = new DataSequence());
+        },
+        enumerable: true
+    }
 });
 
 TransactionEntryProto.attachedCallback = function () {
-    this.innerHTML = `
+    console.log(this.tagName, 'attachedCallback');
+    this.innerHTML = this.html();
+
+    function enterData(e) {
+        e.preventDefault();
+        let form = $(e.target);
+        this.transactionChanges.add({
+            date: form.find("[name=date]").val(),
+            description: form.find("[name=description]").val(),
+            postings: [{
+                type: form.find("[name='posting1.type']").val(),
+                accountId: form.find("[name='posting1.accountId']").val(),
+                amount: parseFloat(form.find("[name='posting1.amount']").val())
+            },
+                {
+                    type: form.find("[name='posting2.type']").val(),
+                    accountId: form.find("[name='posting2.accountId']").val(),
+                    amount: parseFloat(form.find("[name='posting2.amount']").val())
+                }
+            ]
+        });
+    }
+
+    $(this).on('submit', enterData.bind(this));
+
+};
+
+TransactionEntryProto.html = function () {
+    return `
         <form action="">
             <div>
                 <label>Date</label>
@@ -127,7 +167,7 @@ TransactionEntryProto.attachedCallback = function () {
 
             <div>
                 <label>Posting 1</label>
-                <account-select account-infos="{{accountInfos}}"></account-select>
+                <account-select name="posting1.accountId" account-infos="{{accountInfos}}"></account-select>
                 <select name="posting1.type">
                     <option value="DR">Debit</option>
                     <option value="CR">Credit</option>
@@ -137,7 +177,7 @@ TransactionEntryProto.attachedCallback = function () {
 
             <div>
                 <label>Posting 2</label>
-                <account-select account-infos="{{accountInfos}}"></account-select>
+                <account-select name="posting2.accountId" account-infos="{{accountInfos}}"></account-select>
                 <select name="posting2.type">
                     <option value="DR">Debit</option>
                     <option value="CR">Credit</option>
@@ -163,6 +203,11 @@ var AccountSelectProto = Object.create(HTMLElement.prototype, {
         },
         set: function (n) {
             this._name = n;
+        }
+    },
+    value: {
+        get: function () {
+            return $(this).find('select').val();
         }
     },
     accountInfos: {
