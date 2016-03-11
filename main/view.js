@@ -77,7 +77,7 @@ var AccountUpdateProto = Object.create(HTMLElement.prototype, {
     },
     accountDetailsChanges: {
         get: function() { 
-            return this._transaction || (this._transaction = new DataSequence());
+            return this._accountDetails || (this._accountDetails = new FormInputSequence(this));
             },
         enumerable: true
     }
@@ -86,16 +86,6 @@ var AccountUpdateProto = Object.create(HTMLElement.prototype, {
 AccountUpdateProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
     this.innerHTML = this.html();
-
-    function enterAccountDetails(e) {
-        e.preventDefault();
-        let form = $(e.target);
-        this.accountDetailsChanges.add({
-            name: form.find("[name=name]").val()
-        });
-    }
-
-    $(this).on('submit', enterAccountDetails.bind(this));
 };
 
 AccountUpdateProto.html = function() {

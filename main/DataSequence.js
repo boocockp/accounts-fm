@@ -70,3 +70,23 @@ class DataSequence {
     }
 
 }
+
+class FormInputSequence extends DataSequence {
+
+    constructor(element) {
+        super();
+        function onSubmit(e) {
+            e.preventDefault();
+            let form = $(e.target);
+            this.add(this.getFormData(form));
+        }
+
+        $(element).on('submit', onSubmit.bind(this));
+
+    }
+
+    getFormData(formEl) {
+        let inputs = formEl.find("[name]").filter(":input");
+        return _.fromPairs(_.map(inputs.get(), (el) => [$(el).attr('name'), $(el).val()]));
+    }
+}

@@ -1,13 +1,17 @@
 To Do
 =====
 
-- Transaction Entry
-- Refactor Aggregators
+    - Transaction Entry
+    - Refactor Aggregators
 - Account updates
 - Ensure version correct for all classes
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
 - Active view components
 - Joint stored input sequence
+- Automatically create input data from form contents
+- List structures in forms
+- Wiring with forward/circular references
+- Refactor views
 
 Done
 ----
