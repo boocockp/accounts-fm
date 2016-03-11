@@ -7,6 +7,8 @@ function attributePropertyDef(name) {
             if (this[internalName]) return this[internalName];
 
             let propertyAttr = this.getAttribute(_.kebabCase(name));
+            if (!propertyAttr) return null;
+
             let exprMatch = propertyAttr.match(/\{\{([a-zA-Z0-9_.]+)\}\}/);
             if (!exprMatch) return propertyAttr;
             let propertyPath = exprMatch[1];
@@ -30,12 +32,13 @@ function attributePropertyDef(name) {
 
 
 var AccountsTableProto = Object.create(HTMLElement.prototype, {
-    accountSummaries: attributePropertyDef('accountSummaries')
+    generalLedger: attributePropertyDef('generalLedger')
 });
 
 AccountsTableProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
-    this.accountSummaries.onChange( () => this.innerHTML = this.html() );
+    this.generalLedger.accountSummaries.onChange( () => this.innerHTML = this.html() );
+    this.generalLedger.transactions.onChange( () => this.innerHTML = this.html() );
 };
 
 AccountsTableProto.html = function () {
@@ -47,7 +50,7 @@ AccountsTableProto.html = function () {
                     `
     };
 
-    let accountRows = this.accountSummaries.map(accToRow).join('\n').value;
+    let accountRows = this.generalLedger.accountSummaries.map(accToRow).join('\n').value;
     return `<table>
             <thead>
             <tr>

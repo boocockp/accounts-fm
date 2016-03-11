@@ -66,7 +66,7 @@ class GeneralLedger {
         let accountSummaries = accountIds.map( a => accountSummary(a));
         let accountsByName = accountSummaries.sort( a => a.details.name );
 
-        return {accountIds, accountInfos, accountSummaries, accountsByName};
+        return {accountIds, accountInfos, accountSummaries, accountsByName, transactions};
     }
 
 }
