@@ -77,16 +77,10 @@ class FormInputSequence extends DataSequence {
         super();
         function onSubmit(e) {
             e.preventDefault();
-            let form = $(e.target);
-            this.add(this.getFormData(form));
+            this.add(e.target.value);
         }
 
         $(element).on('submit', onSubmit.bind(this));
 
-    }
-
-    getFormData(formEl) {
-        let inputs = formEl.find("[name]").filter(":input");
-        return _.fromPairs(_.map(inputs.get(), (el) => [$(el).attr('name'), $(el).val()]));
     }
 }

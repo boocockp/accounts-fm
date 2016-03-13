@@ -37,8 +37,8 @@ var AccountsTableProto = Object.create(HTMLElement.prototype, {
 
 AccountsTableProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
-    this.generalLedger.accountSummaries.onChange( () => this.innerHTML = this.html() );
-    this.generalLedger.transactions.onChange( () => this.innerHTML = this.html() );
+    this.generalLedger.accountSummaries.onChange(() => this.innerHTML = this.html());
+    this.generalLedger.transactions.onChange(() => this.innerHTML = this.html());
 };
 
 AccountsTableProto.html = function () {
@@ -70,15 +70,15 @@ var AccountsTable = document.registerElement('accounts-table', {prototype: Accou
 
 var AccountUpdateProto = Object.create(HTMLElement.prototype, {
     accountDetails: {
-        get: function() {
+        get: function () {
             return this.accountDetailsChanges.value;
         },
         enumerable: true
     },
     accountDetailsChanges: {
-        get: function() { 
+        get: function () {
             return this._accountDetails || (this._accountDetails = new FormInputSequence(this));
-            },
+        },
         enumerable: true
     }
 });
@@ -88,7 +88,7 @@ AccountUpdateProto.attachedCallback = function () {
     this.innerHTML = this.html();
 };
 
-AccountUpdateProto.html = function() {
+AccountUpdateProto.html = function () {
     return `<form action="">
         <div>
         <label>Name</label>
@@ -105,14 +105,14 @@ var AccountUpdate = document.registerElement('account-update', {prototype: Accou
 var TransactionEntryProto = Object.create(HTMLElement.prototype, {
     accountInfos: attributePropertyDef('accountInfos'),
     transaction: {
-        get: function() {
+        get: function () {
             return this.transactionChanges.value;
         },
         enumerable: true
     },
     transactionChanges: {
-        get: function() {
-            return this._transaction || (this._transaction = new DataSequence());
+        get: function () {
+            return this._transaction || (this._transaction = new FormInputSequence(this));
         },
         enumerable: true
     }
@@ -121,34 +121,11 @@ var TransactionEntryProto = Object.create(HTMLElement.prototype, {
 TransactionEntryProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
     this.innerHTML = this.html();
-
-    function enterData(e) {
-        e.preventDefault();
-        let form = $(e.target);
-        this.transactionChanges.add({
-            date: form.find("[name=date]").val(),
-            description: form.find("[name=description]").val(),
-            postings: [{
-                type: form.find("[name='posting1.type']").val(),
-                accountId: form.find("[name='posting1.accountId']").val(),
-                amount: parseFloat(form.find("[name='posting1.amount']").val())
-            },
-                {
-                    type: form.find("[name='posting2.type']").val(),
-                    accountId: form.find("[name='posting2.accountId']").val(),
-                    amount: parseFloat(form.find("[name='posting2.amount']").val())
-                }
-            ]
-        });
-    }
-
-    $(this).on('submit', enterData.bind(this));
-
 };
 
 TransactionEntryProto.html = function () {
     return `
-        <form action="">
+        <form action="" is="data-form">
             <div>
                 <label>Date</label>
                 <input type="text" name="date" value="">
@@ -158,25 +135,34 @@ TransactionEntryProto.html = function () {
                 <input type="text" name="description" value="">
             </div>
 
+            <form-list name="postings">
             <div>
                 <label>Posting 1</label>
-                <account-select name="posting1.accountId" account-infos="{{accountInfos}}"></account-select>
-                <select name="posting1.type">
-                    <option value="DR">Debit</option>
-                    <option value="CR">Credit</option>
-                </select>
-                <input type="text" name="posting1.amount" value="">
+                <form-group>
+                    <account-select name="accountId" account-infos="{{accountInfos}}"></account-select>
+                    <select name="type">
+                        <option value="DR">Debit</option>
+                        <option value="CR">Credit</option>
+                    </select>
+                    <input is="data-input" type="number" name="amount" value="">
+                </form-group>
             </div>
 
             <div>
                 <label>Posting 2</label>
-                <account-select name="posting2.accountId" account-infos="{{accountInfos}}"></account-select>
-                <select name="posting2.type">
-                    <option value="DR">Debit</option>
-                    <option value="CR">Credit</option>
-                </select>
-                <input type="text" name="posting2.amount" value="">
+                <form-group>
+                    <account-select name="accountId" account-infos="{{accountInfos}}"></account-select>
+                    <select name="type">
+                        <option value="DR">Debit</option>
+                        <option value="CR">Credit</option>
+                    </select>
+                    <input is="data-input" type="number" name="amount" value="">
+                </form-group>
+
             </div>
+            </form-list>
+
+
 
 
             <div>
@@ -192,7 +178,7 @@ var TransactionEntry = document.registerElement('transaction-entry', {prototype:
 var AccountSelectProto = Object.create(HTMLElement.prototype, {
     name: {
         get: function () {
-            return this._name;
+            return this._name || this.getAttribute('name');
         },
         set: function (n) {
             this._name = n;
@@ -217,7 +203,7 @@ var AccountSelectProto = Object.create(HTMLElement.prototype, {
 
 AccountSelectProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
-    this.accountInfos.onChange( () => this.innerHTML = this.html() );
+    this.accountInfos.onChange(() => this.innerHTML = this.html());
 };
 
 AccountSelectProto.html = function () {
@@ -234,8 +220,84 @@ AccountSelectProto.html = function () {
         `;
 };
 
-AccountSelectProto.attributeChangedCallback = function(attrName, oldVal, newVal) {
+AccountSelectProto.attributeChangedCallback = function (attrName, oldVal, newVal) {
     console.log(this.tagName, 'attributeChangedCallback', attrName, oldVal, newVal);
 };
 
 var AccountSelect = document.registerElement('account-select', {prototype: AccountSelectProto});
+
+var getFormData = function(formEl) {
+    let inputs = $(formEl).find("[name]").filter(":input,form-group,form-list").filter( (i, el) => $(el).parent().closest('form-group,form-list,form').is(formEl) );
+    return _.fromPairs(_.map(inputs.get(), (el) => [$(el).attr('name'), $(el).val()]));
+};
+
+var getFormList = function(formEl) {
+    let inputs = $(formEl).find(":input,form-group,form-list").filter( (i, el) => $(el).parent().closest('form-group,form-list,form').is(formEl) );
+    return _.map(inputs.get(), (el) => $(el).val());
+};
+
+var FormGroupProto = Object.create(HTMLElement.prototype, {
+    name: {
+        writable: true,
+        enumerable: true
+    },
+    value: {
+        get: function () {
+            return getFormData(this);
+        },
+        enumerable: true
+    }
+});
+
+FormGroupProto.attachedCallback = function () {
+    console.log(this.tagName, 'attachedCallback');
+    if (this.html()) this.innerHTML = this.html();
+};
+
+FormGroupProto.html = function () {};
+
+var FormGroup = document.registerElement('form-group', {prototype: FormGroupProto});
+
+var FormListProto = Object.create(HTMLElement.prototype, {
+    name: {
+        writable: true,
+        enumerable: true
+    },
+    value: {
+        get: function () {
+            return getFormList(this);
+        },
+        enumerable: true
+    }
+});
+
+var FormList = document.registerElement('form-list', {prototype: FormListProto});
+
+
+
+var DataFormProto = Object.create(HTMLFormElement.prototype, {
+    value: {
+        get: function () {
+            return getFormData(this);
+        },
+        enumerable: true
+    }
+});
+
+var DataForm = document.registerElement('data-form', {prototype: DataFormProto, extends: 'form'});
+
+var DataInputProto = Object.create(HTMLInputElement.prototype, {
+    value: {
+        get: function () {
+            let baseValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').get.call(this);
+            if (this.type == "number") {
+                return parseFloat(baseValue)
+            } else {
+                return baseValue;
+            }
+        },
+        enumerable: true
+    }
+});
+
+var DataInput = document.registerElement('data-input', {prototype: DataInputProto, extends: 'input'});

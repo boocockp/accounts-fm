@@ -12,6 +12,9 @@ To Do
 - List structures in forms
 - Wiring with forward/circular references
 - Refactor views
+- Generic account-select and encapsulate the native select OR extend native element
+- Number field
+- Validation
 
 Done
 ----
