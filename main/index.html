@@ -39,14 +39,14 @@
     <script src="GeneralLedger.js"></script>
     <script src="view.js"> </script>
     <script src="input.js"> </script>
+
+    <script src="view/AccountUpdate.js"></script>
+    <script src="view/AccountMaintenance.js"></script>
 </head>
 <body>
 
 <h2>Accounts</h2>
-<div id="accountDetails" class="frame">
-    <h3>Account Details</h3>
-    <account-update></account-update>
-</div>
+<account-maintenance account-infos="{{generalLedger.accountInfos}}"></account-maintenance>
 
 <div class="frame">
     <h3>Transaction Entry</h3>

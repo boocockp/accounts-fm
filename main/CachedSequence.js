@@ -73,6 +73,10 @@ class CachedSequence {
         return this._joinAggregator;
     }
 
+    combine(other, combineFn) {
+        return new CombineAggregator(combineFn, [this, other])
+    }
+
     get value() {
         return _resolve(this._updatedElements);
     }
@@ -127,7 +131,7 @@ class FunctionalCachedSequence extends CachedSequence {
         super([]);
 
         this._sources = sources;
-        this._combineFn = processElementsFn;
+        this._processElementsFn = processElementsFn;
         this._sourceIndexes = sources.map( () => 0 );
     }
 
@@ -144,7 +148,7 @@ class FunctionalCachedSequence extends CachedSequence {
     }
 
     _processNewElements(elements) {
-        return this._combineFn(elements);
+        return this._processElementsFn(elements);
     }
 
     _processAllElements(elements) {

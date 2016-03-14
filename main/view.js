@@ -68,39 +68,6 @@ AccountsTableProto.html = function () {
 var AccountsTable = document.registerElement('accounts-table', {prototype: AccountsTableProto});
 
 
-var AccountUpdateProto = Object.create(HTMLElement.prototype, {
-    accountDetails: {
-        get: function () {
-            return this.accountDetailsChanges.value;
-        },
-        enumerable: true
-    },
-    accountDetailsChanges: {
-        get: function () {
-            return this._accountDetails || (this._accountDetails = new FormInputSequence(this));
-        },
-        enumerable: true
-    }
-});
-
-AccountUpdateProto.attachedCallback = function () {
-    console.log(this.tagName, 'attachedCallback');
-    this.innerHTML = this.html();
-};
-
-AccountUpdateProto.html = function () {
-    return `<form action="">
-        <div>
-        <label>Name</label>
-        <input type="text" name="name" value="">
-        </div>
-        <div>
-        <button type="submit">Save</button>
-        </div>
-        </form>`;
-};
-
-var AccountUpdate = document.registerElement('account-update', {prototype: AccountUpdateProto});
 
 var TransactionEntryProto = Object.create(HTMLElement.prototype, {
     accountInfos: attributePropertyDef('accountInfos'),
@@ -231,6 +198,15 @@ var getFormData = function(formEl) {
     return _.fromPairs(_.map(inputs.get(), (el) => [$(el).attr('name'), $(el).val()]));
 };
 
+var setFormData = function(formEl, data) {
+    let inputs = $(formEl).find("[name]").filter(":input,form-group,form-list").filter( (i, el) => $(el).parent().closest('form-group,form-list,form').is(formEl) );
+    let dataObj = data || {};
+    inputs.get().forEach( (el) => {
+        let inputValue = dataObj[$(el).attr('name')] || null;
+        $(el).val(inputValue);
+    });
+};
+
 var getFormList = function(formEl) {
     let inputs = $(formEl).find(":input,form-group,form-list").filter( (i, el) => $(el).parent().closest('form-group,form-list,form').is(formEl) );
     return _.map(inputs.get(), (el) => $(el).val());
@@ -279,6 +255,9 @@ var DataFormProto = Object.create(HTMLFormElement.prototype, {
     value: {
         get: function () {
             return getFormData(this);
+        },
+        set: function(newValue) {
+
         },
         enumerable: true
     }

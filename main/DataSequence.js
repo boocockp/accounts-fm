@@ -84,3 +84,17 @@ class FormInputSequence extends DataSequence {
 
     }
 }
+
+class ChangeInputSequence extends DataSequence {
+
+    constructor(element) {
+        super();
+        function onSubmit(e) {
+            e.preventDefault();
+            this.add(e.target.value);
+        }
+
+        $(element).on('change', onSubmit.bind(this));
+
+    }
+}

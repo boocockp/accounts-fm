@@ -1,6 +1,15 @@
 To Do
 =====
 
+Next
+----
+- Decide how to make account details update the whole set of accounts so updates transmitted
+
+
+When possible
+-------------
+
+
     - Transaction Entry
     - Refactor Aggregators
 - Account updates
@@ -8,13 +17,14 @@ To Do
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
 - Active view components
 - Joint stored input sequence
-- Automatically create input data from form contents
+    - Automatically create input data from form contents
 - List structures in forms
 - Wiring with forward/circular references
 - Refactor views
 - Generic account-select and encapsulate the native select OR extend native element
-- Number field
+    - Number field
 - Validation
+- Account select keeps its selection when options updated
 
 Done
 ----
