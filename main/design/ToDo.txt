@@ -3,6 +3,7 @@ To Do
 
 Next
 ----
+- Decide how to inject an arbitrary local variable object into an html element in markup being generated
 - Decide how to make account details update the whole set of accounts so updates transmitted
 
 
