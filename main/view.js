@@ -26,7 +26,8 @@ function attributePropertyDef(name) {
         },
         set: function (val) {
             this[internalName] = val;
-        }
+        },
+        enumerable: true
     }
 }
 
@@ -68,130 +69,6 @@ AccountsTableProto.html = function () {
 var AccountsTable = document.registerElement('accounts-table', {prototype: AccountsTableProto});
 
 
-
-var TransactionEntryProto = Object.create(HTMLElement.prototype, {
-    accountInfos: attributePropertyDef('accountInfos'),
-    transaction: {
-        get: function () {
-            return this.transactionChanges.value;
-        },
-        enumerable: true
-    },
-    transactionChanges: {
-        get: function () {
-            return this._transaction || (this._transaction = new FormInputSequence(this));
-        },
-        enumerable: true
-    }
-});
-
-TransactionEntryProto.attachedCallback = function () {
-    console.log(this.tagName, 'attachedCallback');
-    this.innerHTML = this.html();
-};
-
-TransactionEntryProto.html = function () {
-    return `
-        <form action="" is="data-form">
-            <div>
-                <label>Date</label>
-                <input type="text" name="date" value="">
-            </div>
-            <div>
-                <label>Description</label>
-                <input type="text" name="description" value="">
-            </div>
-
-            <form-list name="postings">
-            <div>
-                <label>Posting 1</label>
-                <form-group>
-                    <account-select name="accountId" account-infos="{{accountInfos}}"></account-select>
-                    <select name="type">
-                        <option value="DR">Debit</option>
-                        <option value="CR">Credit</option>
-                    </select>
-                    <input is="data-input" type="number" name="amount" value="">
-                </form-group>
-            </div>
-
-            <div>
-                <label>Posting 2</label>
-                <form-group>
-                    <account-select name="accountId" account-infos="{{accountInfos}}"></account-select>
-                    <select name="type">
-                        <option value="DR">Debit</option>
-                        <option value="CR">Credit</option>
-                    </select>
-                    <input is="data-input" type="number" name="amount" value="">
-                </form-group>
-
-            </div>
-            </form-list>
-
-
-
-
-            <div>
-                <button type="submit">Save</button>
-            </div>
-        </form>
-        `;
-};
-
-var TransactionEntry = document.registerElement('transaction-entry', {prototype: TransactionEntryProto});
-
-
-var AccountSelectProto = Object.create(HTMLElement.prototype, {
-    name: {
-        get: function () {
-            return this._name || this.getAttribute('name');
-        },
-        set: function (n) {
-            this._name = n;
-        }
-    },
-    value: {
-        get: function () {
-            return $(this).find('select').val();
-        }
-    },
-    accountInfos: {
-        get: function () {
-            let elWithData = this.parentElement;
-            while (elWithData && !_.hasIn(elWithData, 'accountInfos')) {
-                elWithData = elWithData.parentElement;
-            }
-
-            return elWithData && elWithData.accountInfos;
-        }
-    }
-});
-
-AccountSelectProto.attachedCallback = function () {
-    console.log(this.tagName, 'attachedCallback');
-    this.accountInfos.onChange(() => this.innerHTML = this.html());
-};
-
-AccountSelectProto.html = function () {
-    let accInfoToOption = a => {
-        let accInfo = a.value;
-        return `<option value="${accInfo.id}">${accInfo.name}</option>`
-    };
-
-    let accountOptions = this.accountInfos ? this.accountInfos.map(accInfoToOption).join('\n').value : [];
-    return `
-                <select name="${this.name}">
-                   ${accountOptions}
-                </select>
-        `;
-};
-
-AccountSelectProto.attributeChangedCallback = function (attrName, oldVal, newVal) {
-    console.log(this.tagName, 'attributeChangedCallback', attrName, oldVal, newVal);
-};
-
-var AccountSelect = document.registerElement('account-select', {prototype: AccountSelectProto});
 
 var getFormData = function(formEl) {
     let inputs = $(formEl).find("[name]").filter(":input,form-group,form-list").filter( (i, el) => $(el).parent().closest('form-group,form-list,form').is(formEl) );

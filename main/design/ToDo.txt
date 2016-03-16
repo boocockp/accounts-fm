@@ -18,10 +18,10 @@ When possible
 - Active view components
 - Joint stored input sequence
     - Automatically create input data from form contents
-- List structures in forms
+    - List structures in forms
 - Wiring with forward/circular references
 - Refactor views
-- Generic account-select and encapsulate the native select OR extend native element
+    - Generic account-select and encapsulate the native select OR extend native element
     - Number field
 - Validation
 - Account select keeps its selection when options updated
