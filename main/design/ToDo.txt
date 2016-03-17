@@ -9,24 +9,24 @@ When possible
 -------------
 
 
-    - Transaction Entry
-    - Refactor Aggregators
-- Account updates in all places - balance, name in selects
+- Validation
 - Ensure version correct for all classes
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
 - Active view components
 - Joint stored input sequence
-    - Automatically create input data from form contents
-    - List structures in forms
 - Wiring with forward/circular references
 - Refactor views
-    - Generic account-select and encapsulate the native select OR extend native element
-    - Number field
-- Validation
-- Account select keeps its selection when options updated
 
 Done
 ----
+    - Transaction Entry
+    - Refactor Aggregators
+    - Account updates in all places - balance, name in selects
+    - Automatically create input data from form contents
+    - List structures in forms
+    - Generic account-select and encapsulate the native select OR extend native element
+    - Number field
+    - Account select keeps its selection when options updated
     - Update only select values when accounts change, leave form entries
     - Sort out _resolve so accountInfos does not need intermediate object - handle Aggregate and CachedSequence specially
     - Accounts by name sorted

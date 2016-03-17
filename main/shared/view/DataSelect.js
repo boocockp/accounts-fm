@@ -14,7 +14,9 @@ DataSelectProto.attachedCallback = function () {
 DataSelectProto.html = function () {
     let itemToOption = (a => {
         let item = a.value;
-        return `<option value="${_.get(item, this.optionValue)}">${_.get(item, this.optionLabel)}</option>`
+        let itemDataId = storePageObject(a);
+
+        return `<option is="data-option" value="${_.get(item, this.optionValue)}" content="{{pageStorage.${itemDataId}}}" content-path="{{optionLabel}}"></option>`;
     }).bind(this);
 
     let dataOptions = this.items.map(itemToOption).join('\n').value;

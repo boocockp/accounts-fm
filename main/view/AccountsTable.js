@@ -15,8 +15,8 @@ AccountsTableProto.html = function () {
         let detailsDataId = storePageObject(a.details);
         let balanceDataId = storePageObject(a.balance);
         return `<tr>
-                    <td><data-span content="{{pageStorage.${detailsDataId}}}" content-path="name"></data-span></td>
-                    <td><data-span content="{{pageStorage.${balanceDataId}}}" ></data-span></td>
+                    <td><data-value content="{{pageStorage.${detailsDataId}}}" content-path="name"></data-value></td>
+                    <td><data-value content="{{pageStorage.${balanceDataId}}}" ></data-value></td>
                     </tr>
                     `
     };
