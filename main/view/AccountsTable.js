@@ -13,9 +13,10 @@ AccountsTableProto.attachedCallback = function () {
 AccountsTableProto.html = function () {
     let accToRow = a => {
         let detailsDataId = storePageObject(a.details);
+        let balanceDataId = storePageObject(a.balance);
         return `<tr>
                     <td><data-span content="{{pageStorage.${detailsDataId}}}" content-path="name"></data-span></td>
-                    <td>${a.balance.value}</td>
+                    <td><data-span content="{{pageStorage.${balanceDataId}}}" ></data-span></td>
                     </tr>
                     `
     };

@@ -3,8 +3,6 @@ To Do
 
 Next
 ----
-- Decide how to inject an arbitrary local variable object into an html element in markup being generated
-- Decide how to make account details update the whole set of accounts so updates transmitted
 
 
 When possible
@@ -13,7 +11,7 @@ When possible
 
     - Transaction Entry
     - Refactor Aggregators
-- Account updates
+- Account updates in all places - balance, name in selects
 - Ensure version correct for all classes
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
 - Active view components

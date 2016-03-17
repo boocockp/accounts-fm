@@ -11,7 +11,9 @@ DataSpanProto.attachedCallback = function () {
 };
 
 DataSpanProto.html = function () {
-    return _.get(this.content.value, this.contentPath);
+    let path = this.contentPath;
+    let value = this.content.value;
+    return path ? _.get(value, this.contentPath) : value;
 };
 
 var DataSpan = document.registerElement('data-span', {prototype: DataSpanProto});
