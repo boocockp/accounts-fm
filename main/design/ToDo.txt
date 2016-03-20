@@ -9,7 +9,6 @@ When possible
 -------------
 
 
-- Validation
 - Why does accountInfos return an aggregator and accountSummary return a plain object?
 - Store inputs after validation
 - Ensure version correct for all classes
@@ -17,10 +16,11 @@ When possible
 - Active view components
 - Joint stored input sequence
 - Wiring with forward/circular references
-- Refactor views
 
 Done
 ----
+    - Refactor views
+    - Validation
     - Transaction Entry
     - Refactor Aggregators
     - Account updates in all places - balance, name in selects

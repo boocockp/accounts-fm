@@ -12,8 +12,10 @@ DataValueProto.attachedCallback = function () {
 
 DataValueProto.html = function () {
     let path = this.contentPath;
-    let value = this.content.value;
-    return path ? _.get(value, this.contentPath) : value;
+    let valueObject = this.content.value;
+    let value = path ? _.get(valueObject, this.contentPath) : valueObject;
+    let showValue = value !== undefined && value !== null;
+    return showValue ? value : "";
 };
 
 var DataValue = document.registerElement('data-value', {prototype: DataValueProto});
