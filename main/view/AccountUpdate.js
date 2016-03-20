@@ -1,5 +1,6 @@
 var AccountUpdateProto = Object.create(HTMLElement.prototype, {
     incomingValue: attributePropertyDef('incomingValue'),
+    incomingErrors: attributePropertyDef('incomingErrors'),
     accountDetails: {
         get: function () {
             return this.accountDetailsChanges.value;
@@ -28,7 +29,7 @@ AccountUpdateProto.html = function () {
         <div>
             <label>Name</label>
             <input type="text" name="name" value="${this.incomingValue.value && this.incomingValue.value.name}">
-            <span class="error"></span>
+            <span class="error"><data-value content="{{incomingErrors}}}" content-path="errors.name"></data-value></span>
         </div>
         <div>
             <button type="submit">Save</button>

@@ -28,7 +28,18 @@ class GeneralLedger {
     buildModel() {
         let withId = this.withId.bind(this), mergeProperties = this.mergeProperties;
 
-        let accountDetails = this.accountInputs.map( withId);
+        let accountInputsWithErrors = this.accountInputs.map(a => {
+            let errors = {};
+            if (!a.name) {
+                errors.name = 'Required';
+            }
+
+            return { data: a, errors: errors };
+        });
+
+        let accountInputsValid = accountInputsWithErrors.filter(a => _.isEmpty(a.errors)).map( a => a.data );
+
+        let accountDetails = accountInputsValid.map( withId);
         let transactions = this.transactionInputs.map( withId);
 
         let accountIds = accountDetails.property('id').distinct();
@@ -66,7 +77,7 @@ class GeneralLedger {
         let accountSummaries = accountIds.map( a => accountSummary(a));
         let accountsByName = accountSummaries.sort( a => a.details.name );
 
-        return {accountIds, accountInfos, accountSummaries, accountsByName, transactions};
+        return {accountInputsWithErrors, accountIds, accountInfos, accountSummaries, accountsByName, transactions};
     }
 
 }

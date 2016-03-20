@@ -64,6 +64,11 @@ class CachedSequence {
         return this._countAggregator;
     }
 
+    latest() {
+        this._latestAggregator = this._latestAggregator || new LatestAggregator(this);
+        return this._latestAggregator;
+    }
+
     reduce(fn, acc) {
         return new ReduceAggregator(this, fn, acc);
     }
@@ -370,6 +375,33 @@ class CountAggregator extends Aggregator {
 
     _processElements(oldValue, elements) {
         return oldValue + elements.length;
+    }
+
+}
+
+class LatestAggregator extends Aggregator {
+
+    constructor(source) {
+        super([source]);
+        this._source = source;
+        this._sourceIndex = 0;
+        this._value = null;
+    }
+
+    get value() {
+        this._ensureUpToDate();
+        return this._value;
+    }
+
+    _ensureUpToDate() {
+        let sourceElements = this._source._updatedElements;
+        let unprocessedSourceElements = sourceElements.slice(this._sourceIndex);
+        this._value = this._processElements(this._value, unprocessedSourceElements);
+        this._sourceIndex = sourceElements.length;
+    }
+
+    _processElements(oldValue, elements) {
+        return _.last(elements) || this._value;
     }
 
 }

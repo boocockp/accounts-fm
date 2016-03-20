@@ -40,16 +40,22 @@ class DataSequence {
     }
 
     get value() {
+        this._ensureUpToDate();
         return _resolve(this._element);
     }
 
     get version() {
+        this._ensureUpToDate();
         return this._version;
     }
 
     onChange(callback) {
         this._observeHandler = this._observeHandler|| new ObserveHandler(this);
         this._observeHandler.addListener(callback);
+    }
+
+    map(expr) {
+        return new MapDataSequence(this, expr);
     }
 
     _observeUpdates(handler) {
@@ -69,6 +75,7 @@ class DataSequence {
         }
     }
 
+    _ensureUpToDate() {}
 }
 
 class FormInputSequence extends DataSequence {
@@ -89,12 +96,43 @@ class ChangeInputSequence extends DataSequence {
 
     constructor(element) {
         super();
-        function onSubmit(e) {
+        function onChange(e) {
             e.preventDefault();
             this.add(e.target.value);
         }
 
-        $(element).on('change', onSubmit.bind(this));
+        $(element).on('change', onChange.bind(this));
 
     }
 }
+
+class FunctionalDataSequence extends DataSequence {
+
+    constructor(sources, processElementFn) {
+        super();
+        this._sources = sources;
+        this._processElementFn = processElementFn;
+        this._sourceVersions = sources.map( () => 0 );
+    }
+
+    _ensureUpToDate() {
+        if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
+            this._element = this._processElementFn.apply(this, this._sources.map( s => s.value ));
+            this._sourceVersions = this._sources.map( s => s.version );
+            this._version = _.max(this._sourceVersions);
+        }
+    }
+
+    _observeUpdates(handler) {
+        this._sources.forEach( s => s._observeUpdates(handler) );
+    }
+
+}
+
+class MapDataSequence extends FunctionalDataSequence {
+
+    constructor(source, expr) {
+        super([source], expr);
+    }
+}
+

@@ -55,7 +55,7 @@
 <body>
 
 <h2>Accounts</h2>
-<account-maintenance account-infos="{{generalLedger.accountInfos}}"></account-maintenance>
+<account-maintenance account-infos="{{generalLedger.accountInfos}}" account-errors="{{generalLedger.accountInputsWithErrors}}"></account-maintenance>
 
 <div class="frame">
     <h3>Transaction Entry</h3>
@@ -69,7 +69,9 @@
 </div>
 
 <script>
-    $('account-update').get(0).accountDetailsChanges.onChange( function(a) { accountInputs.add(a) });
+    $('account-maintenance').get(0).accountDetailsChanges.onChange( function(a) {
+        accountInputs.add(a)
+    });
     $('transaction-entry').get(0).transactionChanges.onChange( function(a) { transactionInputs.add(a) });
 </script>
 
