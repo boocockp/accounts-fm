@@ -6,10 +6,9 @@ let CREDIT = 'CR';
 class GeneralLedger {
 
 
-    constructor(accountInputsStore, transactionInputsStore) {
+    constructor(inputsStore) {
         this.lastId = 1000;
-        this.accountInputsStore = accountInputsStore;
-        this.transactionInputsStore = transactionInputsStore;
+        this.inputsStore = inputsStore;
 
         _.forIn(this.buildModel(), (propFn, name) => {
             this[name] = propFn;
@@ -42,11 +41,11 @@ class GeneralLedger {
 
         let accountInputsValid = accountInputsWithErrors.filter(a => _.isEmpty(a.errors)).map( a => a.data );
 
-        accountInputsValid.onChange( a => this.accountInputsStore.add(a));
-        transactionInputs.onChange( a => this.transactionInputsStore.add(a));
+        accountInputsValid.onChange( a => this.inputsStore.add(a, 'account'));
+        transactionInputs.onChange( t => this.inputsStore.add(t, 'transaction'));
 
-        let accountDetails = this.accountInputsStore.map( withId);
-        let transactions = this.transactionInputsStore.map( withId);
+        let accountDetails = this.inputsStore.inputsOfType('account').map( withId);
+        let transactions = this.inputsStore.inputsOfType('transaction').map( withId);
 
         let accountIds = accountDetails.property('id').distinct();
 

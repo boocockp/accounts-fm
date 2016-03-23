@@ -9,12 +9,18 @@ class LocalStorageInputSource extends CachedSequence {
         this._key = key;
     }
 
-    add(inputs) {
-        super.add(inputs);
+    add(input, type) {
+        let inputArray =  _.isArray(input) ? input : [input];
+
+        super.add(inputArray.map( it => ({type, data: it}) ));
         try {
             localStorage.setItem(this._key, JSON.stringify(this.value));
         } catch (e) {
             console.error('Could not save inputs', e.message);
         }
+    }
+
+    inputsOfType(type) {
+        return this.filter( it => it.type == type).map( it => it.data );
     }
 }

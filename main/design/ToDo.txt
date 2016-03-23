@@ -5,20 +5,21 @@ Next
 ----
 
 
-When possible
--------------
+Backlog
+-------
 
 
 - Why does accountInfos return an aggregator and accountSummary return a plain object?
-- Store inputs after validation
 - Ensure version correct for all classes
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
-- Active view components
-- Joint stored input sequence
 - Wiring with forward/circular references
+- Only submit changed properties on account update
 
 Done
 ----
+    - Active view components
+    - Store inputs after validation
+    - Joint stored input sequence
     - Refactor views
     - Validation
     - Transaction Entry

@@ -39,13 +39,11 @@
     <script src="lib/jquery-2.2.1.js"></script>
     <script src="DataSequence.js"></script>
     <script src="CachedSequence.js"></script>
-    <script src="InputSource.js"></script>
     <script src="LocalStorageInputSource.js"></script>
     <script src="GeneralLedger.js"></script>
     <script>
-        let accountInputsStore = new LocalStorageInputSource("generalLedger.accountInputs");
-        let transactionInputsStore = new LocalStorageInputSource("generalLedger.transactionInputs");
-        var generalLedger = new GeneralLedger(accountInputsStore, transactionInputsStore);
+        let inputsStore = new LocalStorageInputSource("generalLedger.inputs");
+        var generalLedger = new GeneralLedger(inputsStore);
     </script>
 
     <script src="shared/view/ViewUtils.js"></script>
