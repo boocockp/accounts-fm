@@ -42,7 +42,11 @@
     <script src="InputSource.js"></script>
     <script src="LocalStorageInputSource.js"></script>
     <script src="GeneralLedger.js"></script>
-    <script src="input.js"> </script>
+    <script>
+        let accountInputsStore = new LocalStorageInputSource("generalLedger.accountInputs");
+        let transactionInputsStore = new LocalStorageInputSource("generalLedger.transactionInputs");
+        var generalLedger = new GeneralLedger(accountInputsStore, transactionInputsStore);
+    </script>
 
     <script src="shared/view/ViewUtils.js"></script>
     <script src="shared/view/DataInput.js"></script>
@@ -77,7 +81,7 @@
     $('account-maintenance').get(0).accountDetailsChanges.onChange( function(a) {
         generalLedger.accountInputs.add(a)
     });
-    $('transaction-entry').get(0).transactionChanges.onChange( function(a) { transactionInputs.add(a) });
+    $('transaction-entry').get(0).transactionChanges.onChange( function(a) { generalLedger.transactionInputs.add(a) });
 </script>
 
 </body>
