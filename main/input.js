@@ -1,7 +1,7 @@
 'use strict';
 
-let accountInputs = new LocalStorageInputSource("generalLedger.accountInputs");
+let accountInputsStore = new LocalStorageInputSource("generalLedger.accountInputs");
 let transactionInputs = new LocalStorageInputSource("generalLedger.transactionInputs");
 
-var generalLedger = new GeneralLedger(accountInputs, transactionInputs);
+var generalLedger = new GeneralLedger(accountInputsStore, transactionInputs);
 

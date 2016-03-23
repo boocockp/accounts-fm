@@ -6,9 +6,9 @@ let CREDIT = 'CR';
 class GeneralLedger {
 
 
-    constructor(accountInputs, transactionInputs) {
+    constructor(accountInputsStore, transactionInputs) {
         this.lastId = 1000;
-        this.accountInputs = accountInputs;
+        this.accountInputsStore = accountInputsStore;
         this.transactionInputs = transactionInputs || new CachedSequence();
 
         _.forIn(this.buildModel(), (propFn, name) => {
@@ -28,7 +28,9 @@ class GeneralLedger {
     buildModel() {
         let withId = this.withId.bind(this), mergeProperties = this.mergeProperties;
 
-        let accountInputsWithErrors = this.accountInputs.map(a => {
+        let accountInputs = new DataSequence();
+
+        let accountInputsWithErrors = accountInputs.map(a => {
             let errors = {};
             if (!a.name) {
                 errors.name = 'Required';
@@ -39,7 +41,9 @@ class GeneralLedger {
 
         let accountInputsValid = accountInputsWithErrors.filter(a => _.isEmpty(a.errors)).map( a => a.data );
 
-        let accountDetails = accountInputsValid.map( withId);
+        accountInputsValid.onChange( a => this.accountInputsStore.add(a));
+
+        let accountDetails = this.accountInputsStore.map( withId);
         let transactions = this.transactionInputs.map( withId);
 
         let accountIds = accountDetails.property('id').distinct();
@@ -77,7 +81,7 @@ class GeneralLedger {
         let accountSummaries = accountIds.map( a => accountSummary(a));
         let accountsByName = accountSummaries.sort( a => a.details.name );
 
-        return {accountInputsWithErrors, accountIds, accountInfos, accountSummaries, accountsByName, transactions};
+        return {accountInputs, accountInputsWithErrors, accountIds, accountInfos, accountSummaries, accountsByName, transactions};
     }
 
 }

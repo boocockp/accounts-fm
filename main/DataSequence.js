@@ -58,6 +58,14 @@ class DataSequence {
         return new MapDataSequence(this, expr);
     }
 
+    filter(condition) {
+        return new FilterDataSequence(this, condition);
+    }
+
+    latest() {
+        return this;
+    }
+
     _observeUpdates(handler) {
         this._updateObservers = this._updateObservers || new Set();
         this._updateObservers.add(handler);
@@ -134,5 +142,25 @@ class MapDataSequence extends FunctionalDataSequence {
     constructor(source, expr) {
         super([source], expr);
     }
+}
+
+
+class FilterDataSequence extends FunctionalDataSequence {
+
+    constructor(source, condition) {
+        super([source], (el) => condition(el) ? el : undefined);
+    }
+
+    _ensureUpToDate() {
+        if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
+            let newElement = this._processElementFn.apply(this, this._sources.map(s => s.value ));
+            if (newElement !== undefined) {
+                this._element = newElement;
+                this._version++;
+            }
+            this._sourceVersions = this._sources.map( s => s.version );
+        }
+    }
+
 }
 
