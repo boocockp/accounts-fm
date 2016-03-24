@@ -79,7 +79,7 @@ class CachedSequence {
     }
 
     combine(other, combineFn) {
-        return new CombineAggregator(combineFn, [this, other])
+        return new CombineDataSequence(combineFn, [this, other])
     }
 
     get value() {

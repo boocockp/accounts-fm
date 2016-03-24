@@ -8,12 +8,33 @@ Next
 Backlog
 -------
 
+- New Account
+- Trial Balance
+- Persistent data
+- Account list sorted by name
+- Account Types
+- Styling
+- UI organisation
+- Multiple postings in a transaction
+- Profit and Loss
+- Balance Sheet
+- Account transaction list
+- Transaction shortcuts
+- Statement ingestion
+
 
 - Why does accountInfos return an aggregator and accountSummary return a plain object?
 - Ensure version correct for all classes
 - Ensure sort works with all kinds of different sort expressions inc ones that use calculated values
 - Wiring with forward/circular references
 - Only submit changed properties on account update
+
+Technical
+---------
+- DataForm can set value
+- Merge DataSequence, CachedSequence and Aggregator
+- Refactor property definition
+- Helpers for common ops like find by id
 
 Done
 ----

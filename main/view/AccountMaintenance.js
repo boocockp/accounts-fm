@@ -27,6 +27,18 @@ var AccountMaintenanceProto = Object.create(HTMLElement.prototype, {
         },
         enumerable: true
     },
+    newAccount: {
+        get: function () {
+            return this._newAccount || (this._newAccount = new ClickInputSequence(this.querySelector('button[name="newAccount"]')).map( () => ({}) ));
+        },
+        enumerable: true
+    },
+    accountChanged: {
+        get: function () {
+            return this._accountChanged || (this._accountChanged = this.accountSelected.merge(this.newAccount));
+        },
+        enumerable: true
+    },
     accountDetailsChanges: {
         get: function () {
             return this.querySelector('account-update').accountDetailsChanges.map( a => _.merge({ clientId: this.clientId, actionId: this.newActionId()}, a));
@@ -58,8 +70,12 @@ AccountMaintenanceProto.html = function () {
             <select is="data-select" items="{{accountInfos}}" option-value="id" option-label="name"></select>
         </div>
 
+        <div>
+            <button type="button" name="newAccount">New Account</button>
+        </div>
+
         <h3>Account Details</h3>
-        <account-update incoming-value="{{accountSelected}}" incoming-errors="{{accountErrorsForThis}}"></account-update>
+        <account-update incoming-value="{{accountChanged}}" incoming-errors="{{accountErrorsForThis}}"></account-update>
     </div>`;
 };
 

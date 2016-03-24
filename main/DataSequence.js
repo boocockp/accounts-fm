@@ -62,6 +62,10 @@ class DataSequence {
         return new FilterDataSequence(this, condition);
     }
 
+    merge(otherSeq) {
+        return new MergeDataSequence(this, otherSeq);
+    }
+
     latest() {
         return this;
     }
@@ -86,34 +90,6 @@ class DataSequence {
     _ensureUpToDate() {}
 }
 
-class FormInputSequence extends DataSequence {
-
-    constructor(element) {
-        super();
-        function onSubmit(e) {
-            e.preventDefault();
-            this.add(e.target.value);
-        }
-
-        $(element).on('submit', onSubmit.bind(this));
-
-    }
-}
-
-class ChangeInputSequence extends DataSequence {
-
-    constructor(element) {
-        super();
-        function onChange(e) {
-            e.preventDefault();
-            this.add(e.target.value);
-        }
-
-        $(element).on('change', onChange.bind(this));
-
-    }
-}
-
 class FunctionalDataSequence extends DataSequence {
 
     constructor(sources, processElementFn) {
@@ -124,6 +100,7 @@ class FunctionalDataSequence extends DataSequence {
     }
 
     _ensureUpToDate() {
+        this._sources.forEach( it => it._ensureUpToDate() );
         if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
             this._element = this._processElementFn.apply(this, this._sources.map( s => s.value ));
             this._sourceVersions = this._sources.map( s => s.version );
@@ -134,6 +111,12 @@ class FunctionalDataSequence extends DataSequence {
     _observeUpdates(handler) {
         this._sources.forEach( s => s._observeUpdates(handler) );
     }
+
+    get _updatedElement() {
+        this._ensureUpToDate();
+        return this._element;
+    }
+
 
 }
 
@@ -152,6 +135,7 @@ class FilterDataSequence extends FunctionalDataSequence {
     }
 
     _ensureUpToDate() {
+        this._sources.forEach( it => it._ensureUpToDate() );
         if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
             let newElement = this._processElementFn.apply(this, this._sources.map(s => s.value ));
             if (newElement !== undefined) {
@@ -163,4 +147,52 @@ class FilterDataSequence extends FunctionalDataSequence {
     }
 
 }
+
+class MergeDataSequence extends FunctionalDataSequence {
+
+    constructor(...sources) {
+        super(sources);
+    }
+
+    _ensureUpToDate() {
+        this._sources.forEach( it => it._ensureUpToDate() );
+        let updatedSources = _.filter(this._sources, (source, i) => source.version > this._sourceVersions[i] );
+        if (updatedSources.length > 1) {
+            console.error('Multiple sources updated in ', this, sources);
+            throw new Error('Multiple sources updated');
+        }
+
+        if (updatedSources.length == 1) {
+            let newElement = updatedSources[0].value;
+            if (newElement !== undefined) {
+                this._element = newElement;
+                this._version++;
+            }
+            this._sourceVersions = this._sources.map( s => s.version );
+        }
+    }
+
+}
+
+class CombineDataSequence extends FunctionalDataSequence {
+
+    constructor(combineFn, sources ) {
+        super(sources, combineFn);
+    }
+
+    _ensureUpToDate() {
+        this._sources.forEach( it => it._ensureUpToDate() );
+        if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
+            let newElement = this._processElementFn.apply(this, this._sources.map(s => s.value ));
+            if (newElement !== undefined) {
+                this._element = newElement;
+                this._version++;
+            }
+            this._sourceVersions = this._sources.map( s => s.version );
+        }
+    }
+
+}
+
+
 
