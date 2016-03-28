@@ -66,6 +66,9 @@ class GeneralLedger {
 
             let debitTotal = debitTransactions.map(t => debitTotalFor(t, accountId)).sum();
             let creditTotal = creditTransactions.map(t => creditTotalFor(t, accountId)).sum();
+            let balance = creditTotal.minus(debitTotal);
+            let creditBalance = creditTotal.combine(debitTotal, (c, d) => c > d ? c - d : null);
+            let debitBalance = debitTotal.combine(creditTotal, (d, c) => d > c ? d - c : null);
             return {
                 id: accountId,
                 details,
@@ -74,7 +77,9 @@ class GeneralLedger {
                 creditTransactions,
                 debitTotal,
                 creditTotal,
-                balance: creditTotal.minus(debitTotal)
+                balance,
+                debitBalance,
+                creditBalance
             }
         };
 

@@ -23,7 +23,7 @@ var AccountMaintenanceProto = Object.create(HTMLElement.prototype, {
     },
     accountSelected: {
         get: function () {
-            return this._accountSelected || (this._accountSelected = this.accountInfos.combine(this.accountIdSelected, (infos, id) => infos.find( (info) => info.id == id)));
+            return this._accountSelected || (this._accountSelected = this.accountInfos.combine(this.accountIdSelected, (infos, id) => infos.find((info) => info.id == id)));
         },
         enumerable: true
     },

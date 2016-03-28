@@ -292,18 +292,18 @@ class SumAggregator extends Aggregator {
         this._value = 0;
     }
 
-    combine(combineFn, ...others) {
-        return new CombineAggregator(combineFn, [this].concat(...others));
+    combine(other, combineFn) {
+        return new CombineAggregator(combineFn, [this, other]);
     }
 
     plus(other) {
         let combineFn = (a, b) => a + b;
-        return this.combine(combineFn, other);
+        return this.combine(other, combineFn);
     }
 
     minus(other) {
         let combineFn = (a, b) => a - b;
-        return this.combine(combineFn, other);
+        return this.combine(other, combineFn);
     }
 
     get value() {

@@ -8,7 +8,7 @@ Next
 Backlog
 -------
 
-- New Account
+    - New Account
 - Trial Balance
 - Persistent data
 - Account list sorted by name

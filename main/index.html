@@ -20,11 +20,11 @@
             float: left;
         }
 
-        #table table {
+        table {
             border: 1px solid gray;
             border-collapse: collapse;
         }
-        #table table th, #table table td {
+        table th, table td {
             border: 1px solid gray;
             padding: 5px;
             min-width: 5em;
@@ -59,6 +59,7 @@
     <script src="view/AccountMaintenance.js"></script>
     <script src="view/TransactionEntry.js"></script>
     <script src="view/AccountsTable.js"></script>
+    <script src="view/TrialBalance.js"></script>
 </head>
 <body>
 
@@ -74,6 +75,11 @@
 <div id="output" class="frame">
     <h3>Accounts</h3>
     <accounts-table id="table" general-ledger="{{generalLedger}}"></accounts-table>
+</div>
+
+<div id="trialBalance" class="frame">
+    <h3>Trial Balance</h3>
+    <trial-balance general-ledger="{{generalLedger}}"></trial-balance>
 </div>
 
 <script>

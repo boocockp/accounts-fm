@@ -7,7 +7,6 @@ var AccountsTableProto = Object.create(HTMLElement.prototype, {
 AccountsTableProto.attachedCallback = function () {
     console.log(this.tagName, 'attachedCallback');
     this.generalLedger.accountSummaries.onChange(() => this.innerHTML = this.html());
-    this.generalLedger.transactions.onChange(() => this.innerHTML = this.html());
 };
 
 AccountsTableProto.html = function () {
