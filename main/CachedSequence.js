@@ -19,8 +19,6 @@ class CachedSequence {
         this._notifyAfterAdd();
     }
 
-    get length() { return this._updatedElements.length }
-
     filter(cond) {
         return new FilterCachedSequence(this, cond);
     }
@@ -82,6 +80,10 @@ class CachedSequence {
         return new CombineDataSequence(combineFn, [this, other])
     }
 
+    get length() { return this._updatedElements.length }
+
+    get onlyAdds() { return true; }
+
     get value() {
         return _resolve(this._updatedElements);
     }
@@ -138,18 +140,21 @@ class FunctionalCachedSequence extends CachedSequence {
         this._sources = sources;
         this._processElementsFn = processElementsFn;
         this._sourceIndexes = sources.map( () => 0 );
+        this._sourceVersions = sources.map( () => 0 );
+        this._version = 0;
     }
 
     _ensureUpToDate() {
-        this._sources.forEach( (source, i) => {
-            let sourceElements = source._updatedElements;
-            let unprocessedSourceElements = sourceElements.slice(this._sourceIndexes[i]);
-            if (unprocessedSourceElements.length) {
-                var elementsPlusNew = this._elements.concat(this._processNewElements(unprocessedSourceElements));
-                this._elements = this._processAllElements(elementsPlusNew);
-                this._sourceIndexes[i] = sourceElements.length;
-            }
-        });
+            this._sources.forEach( (source, i) => {
+                let sourceElements = source._updatedElements;
+                let unprocessedSourceElements = sourceElements.slice(this._sourceIndexes[i]);
+                if (unprocessedSourceElements.length) {
+                    var elementsPlusNew = this._elements.concat(this._processNewElements(unprocessedSourceElements));
+                    this._elements = this._processAllElements(elementsPlusNew);
+                    this._sourceIndexes[i] = sourceElements.length;
+                    this._version++;
+                }
+            });
     }
 
     _processNewElements(elements) {
@@ -164,6 +169,14 @@ class FunctionalCachedSequence extends CachedSequence {
         this._sources.forEach( s => s._observeUpdates(handler) );
     }
 
+    get onlyAdds() { return this._sources.every( e => e.onlyAdds ); }
+
+    get version() {
+        this._ensureUpToDate();
+        return this._version;
+    }
+
+
 }
 
 class FilterCachedSequence extends FunctionalCachedSequence {
@@ -173,6 +186,7 @@ class FilterCachedSequence extends FunctionalCachedSequence {
         this._condition = condition;
         this._observerWrappers = [];
         this._wrapperUpdateObservers = new Set();
+        this._version = 0;
     }
 
     _ensureUpToDate() {
@@ -188,7 +202,11 @@ class FilterCachedSequence extends FunctionalCachedSequence {
                 this._sourceIndexes[i] = sourceElements.length;
             }
 
-            this._elements = this._processAllElements(this._observerWrappers);
+            let elements = this._processAllElements(this._observerWrappers);
+            if (!_.isEqualWith(elements, this._elements, (a, b) => a === b)) {
+                this._elements = elements;
+                this._version++;
+            }
         });
     }
 
@@ -201,6 +219,13 @@ class FilterCachedSequence extends FunctionalCachedSequence {
         this._wrapperUpdateObservers.add(handler);
         this._observerWrappers.forEach( w => w._observeUpdates(handler));
     }
+
+    get version() {
+        this._ensureUpToDate();
+        return this._version;
+    }
+
+    get onlyAdds() { return false; }
 
 }
 

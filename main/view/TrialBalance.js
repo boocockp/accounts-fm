@@ -4,7 +4,7 @@ var TrialBalanceProto = Object.create(HTMLElement.prototype, {
     generalLedger: attributePropertyDef('generalLedger'),
     accountsIncluded: {
         get: function () {
-            return this._accountsIncluded || (this._accountsIncluded = this.generalLedger.accountSummaries.filter( a => a.balance != 0));
+            return this._accountsIncluded || (this._accountsIncluded = this.generalLedger.accountSummaries.filter( a => a.balance != 0 ));
         },
         enumerable: true
     }
