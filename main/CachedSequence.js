@@ -169,7 +169,69 @@ class FunctionalCachedSequence extends CachedSequence {
 class FilterCachedSequence extends FunctionalCachedSequence {
 
     constructor(source, condition) {
-        super([source], (els) => els.filter(condition));
+        super([source]);
+        this._condition = condition;
+        this._observerWrappers = [];
+        this._wrapperUpdateObservers = new Set();
+    }
+
+    _ensureUpToDate() {
+        this._sources.forEach( (source, i) => {
+            let sourceElements = source._updatedElements;
+            let unprocessedSourceElements = sourceElements.slice(this._sourceIndexes[i]);
+            if (unprocessedSourceElements.length) {
+                let newWrappers = unprocessedSourceElements.map(e => new ObserverWrapper(e));
+                newWrappers.forEach( w => {
+                    this._wrapperUpdateObservers.forEach(o => w._observeUpdates(o));
+                } );
+                this._observerWrappers = this._observerWrappers.concat(newWrappers);
+                this._sourceIndexes[i] = sourceElements.length;
+            }
+
+            this._elements = this._processAllElements(this._observerWrappers);
+        });
+    }
+
+    _processAllElements(elements) {
+        return this._observerWrappers.filter( w => this._condition(w)).map( w => w.observed );
+    }
+
+    _observeUpdates(handler) {
+        super._observeUpdates(handler);
+        this._wrapperUpdateObservers.add(handler);
+        this._observerWrappers.forEach( w => w._observeUpdates(handler));
+    }
+
+}
+
+class ObserverWrapper {
+
+    constructor(observed) {
+        this.observed = observed;
+        this._observedSources = new Set();
+        this._wrapperUpdateObservers = new Set();
+
+        _.forOwn(observed, (v, name) => {
+            if (_.hasIn(v, 'value')) {
+                Object.defineProperty(this, name, { get: function () {
+                    this._observe(v);
+                    return v.value;
+                }
+                });
+            } else {
+                this[name] = v;
+            }
+        });
+    }
+
+    _observeUpdates(handler) {
+        this._wrapperUpdateObservers.add(handler);
+        this._observedSources.forEach(p => p._observeUpdates(handler));
+    }
+
+    _observe(source) {
+        this._observedSources.add(source);
+        this._wrapperUpdateObservers.forEach( o => source._observeUpdates(o) );
     }
 }
 
