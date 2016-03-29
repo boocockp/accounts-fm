@@ -4,10 +4,12 @@
 class CachedSequence {
 
     constructor(elements) {
-            this._elements = (elements || []).slice()
+        this._elements = (elements || []).slice();
+        this._version = this._elements.length ? 1 : 0;
     }
 
     add(entries) {
+        let oldElementCount = this._elements.length;
         this._notifyBeforeAdd();
         if (entries instanceof CachedSequence) {
             this._elements = this._elements.concat(entries._elements)
@@ -15,6 +17,9 @@ class CachedSequence {
             this._elements = this._elements.concat(entries)
         } else {
             this._elements = this._elements.concat([entries])
+        }
+        if (this._elements.length > oldElementCount) {
+            this._version++;
         }
         this._notifyAfterAdd();
     }
@@ -89,7 +94,8 @@ class CachedSequence {
     }
 
     get version() {
-        return this._updatedElements.length;
+        this._ensureUpToDate();
+        return this._version;
     }
 
     onChange(callback) {
@@ -141,7 +147,6 @@ class FunctionalCachedSequence extends CachedSequence {
         this._processElementsFn = processElementsFn;
         this._sourceIndexes = sources.map( () => 0 );
         this._sourceVersions = sources.map( () => 0 );
-        this._version = 0;
     }
 
     _ensureUpToDate() {
@@ -171,11 +176,6 @@ class FunctionalCachedSequence extends CachedSequence {
 
     get onlyAdds() { return this._sources.every( e => e.onlyAdds ); }
 
-    get version() {
-        this._ensureUpToDate();
-        return this._version;
-    }
-
 
 }
 
@@ -185,29 +185,41 @@ class FilterCachedSequence extends FunctionalCachedSequence {
         super([source]);
         this._condition = condition;
         this._observerWrappers = [];
-        this._wrapperUpdateObservers = new Set();
-        this._version = 0;
+        this._observerWrapperVersions = [];
+        this._ourObservers = new Set();
+        this._sourceVersions = this._sources.map( () => 0 );
     }
 
     _ensureUpToDate() {
+        let sourcesChanged = _.sum(this._sources.map( s => s.version )) > _.sum(this._sourceVersions);
+        let sourceContentsChanged = _.sum(this._observerWrappers.map( s => s.version )) > _.sum(this._observerWrapperVersions);
+        if (!sourcesChanged && !sourceContentsChanged) {
+            return;
+        }
+
         this._sources.forEach( (source, i) => {
             let sourceElements = source._updatedElements;
             let unprocessedSourceElements = sourceElements.slice(this._sourceIndexes[i]);
             if (unprocessedSourceElements.length) {
                 let newWrappers = unprocessedSourceElements.map(e => new ObserverWrapper(e));
                 newWrappers.forEach( w => {
-                    this._wrapperUpdateObservers.forEach(o => w._observeUpdates(o));
+                    this._ourObservers.forEach(o => w._observeUpdates(o));
                 } );
                 this._observerWrappers = this._observerWrappers.concat(newWrappers);
+                this._observerWrapperVersions = this._observerWrapperVersions.concat(newWrappers.map( s => s.version ));
                 this._sourceIndexes[i] = sourceElements.length;
             }
 
-            let elements = this._processAllElements(this._observerWrappers);
-            if (!_.isEqualWith(elements, this._elements, (a, b) => a === b)) {
-                this._elements = elements;
-                this._version++;
-            }
+            this._sourceVersions[i] = source.version;
         });
+
+        let elements = this._processAllElements(this._observerWrappers);
+        if (!_.isEqualWith(elements, this._elements, (a, b) => a === b)) {
+            this._elements = elements;
+            this._observerWrapperVersions = this._observerWrappers.map( s => s.version );
+            this._version++;
+        }
+
     }
 
     _processAllElements(elements) {
@@ -216,13 +228,8 @@ class FilterCachedSequence extends FunctionalCachedSequence {
 
     _observeUpdates(handler) {
         super._observeUpdates(handler);
-        this._wrapperUpdateObservers.add(handler);
+        this._ourObservers.add(handler);
         this._observerWrappers.forEach( w => w._observeUpdates(handler));
-    }
-
-    get version() {
-        this._ensureUpToDate();
-        return this._version;
     }
 
     get onlyAdds() { return false; }
@@ -234,7 +241,7 @@ class ObserverWrapper {
     constructor(observed) {
         this.observed = observed;
         this._observedSources = new Set();
-        this._wrapperUpdateObservers = new Set();
+        this._ourObservers = new Set();
 
         _.forOwn(observed, (v, name) => {
             if (_.hasIn(v, 'value')) {
@@ -250,13 +257,22 @@ class ObserverWrapper {
     }
 
     _observeUpdates(handler) {
-        this._wrapperUpdateObservers.add(handler);
+        this._ourObservers.add(handler);
         this._observedSources.forEach(p => p._observeUpdates(handler));
     }
 
     _observe(source) {
         this._observedSources.add(source);
-        this._wrapperUpdateObservers.forEach( o => source._observeUpdates(o) );
+        this._ourObservers.forEach(o => source._observeUpdates(o) );
+    }
+
+    get version() {
+        let result = 0;
+        for (let s of this._observedSources) {
+            result = result + s.version;
+        }
+
+        return result;
     }
 }
 
