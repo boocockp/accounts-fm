@@ -9,7 +9,7 @@ Backlog
 -------
 
     - New Account
-- Trial Balance
+    - Trial Balance
 - Persistent data
 - Account list sorted by name
 - Account Types
