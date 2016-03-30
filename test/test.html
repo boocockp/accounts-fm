@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../node_modules/mocha/mocha.css" rel="stylesheet" />
+    <title>Test</title>
+</head>
+<body>
+    <div id="mocha"></div>
+
+    <script src="../main/lib/lodash.js"></script>
+    <script src="../main/lib/jquery-2.2.1.js"></script>
+    <script src="../main/DataSequence.js"></script>
+    <script src="../main/CachedSequence.js"></script>
+
+
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
+
+    <script>mocha.setup('bdd')</script>
+    <script src="DataSequenceSpec.js"></script>
+    <script>
+        mocha.checkLeaks();
+        mocha.globals(['jQuery']);
+        mocha.run();
+    </script>
+
+</body>
+</html>

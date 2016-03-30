@@ -66,6 +66,10 @@ class DataSequence {
         return new MergeDataSequence(this, otherSeq);
     }
 
+    combine(otherSeq, combineFn) {
+        return new CombineDataSequence(combineFn, [this, otherSeq]);
+    }
+
     latest() {
         return this;
     }
@@ -101,10 +105,15 @@ class FunctionalDataSequence extends DataSequence {
 
     _ensureUpToDate() {
         this._sources.forEach( it => it._ensureUpToDate() );
-        if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
-            this._element = this._processElementFn.apply(this, this._sources.map( s => s.value ));
+        let sourcesAllDefined = _.every(this._sources, s => s.value !== undefined);
+        let sourcesHaveChanged = _.some(this._sources, (source, i) => source.version > this._sourceVersions[i] );
+        if (sourcesAllDefined && sourcesHaveChanged) {
+            let newElement = this._processElementFn.apply(this, this._sources.map(s => s.value ));
+            if (newElement !== undefined) {
+                this._element = newElement;
+                this._version++;
+            }
             this._sourceVersions = this._sources.map( s => s.version );
-            this._version = _.max(this._sourceVersions);
         }
     }
 
@@ -132,18 +141,6 @@ class FilterDataSequence extends FunctionalDataSequence {
 
     constructor(source, condition) {
         super([source], (el) => condition(el) ? el : undefined);
-    }
-
-    _ensureUpToDate() {
-        this._sources.forEach( it => it._ensureUpToDate() );
-        if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
-            let newElement = this._processElementFn.apply(this, this._sources.map(s => s.value ));
-            if (newElement !== undefined) {
-                this._element = newElement;
-                this._version++;
-            }
-            this._sourceVersions = this._sources.map( s => s.version );
-        }
     }
 
 }
@@ -179,19 +176,6 @@ class CombineDataSequence extends FunctionalDataSequence {
     constructor(combineFn, sources ) {
         super(sources, combineFn);
     }
-
-    _ensureUpToDate() {
-        this._sources.forEach( it => it._ensureUpToDate() );
-        if (_.some(this._sources, (source, i) => source.version > this._sourceVersions[i] )) {
-            let newElement = this._processElementFn.apply(this, this._sources.map(s => s.value ));
-            if (newElement !== undefined) {
-                this._element = newElement;
-                this._version++;
-            }
-            this._sourceVersions = this._sources.map( s => s.version );
-        }
-    }
-
 }
 
 
