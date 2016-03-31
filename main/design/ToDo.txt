@@ -31,7 +31,7 @@ Backlog
 
 Technical
 ---------
-- DataForm can set value
+    - DataForm can set value
 - Merge DataSequence, CachedSequence and Aggregator
 - Refactor property definition
 - Helpers for common ops like find by id

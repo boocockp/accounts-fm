@@ -1,3 +1,7 @@
+'use strict';
+
+//let chai = require('../node_modules/chai/chai');
+
 describe('DataSequence', function() {
 
     let shouldFn = chai.should();
