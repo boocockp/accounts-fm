@@ -1,4 +1,5 @@
 .idea/
 /main/stuff
 /node_modules
+/stuff
 *.iml

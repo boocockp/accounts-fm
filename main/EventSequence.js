@@ -6,7 +6,7 @@ class EventSequence extends DataSequence {
         super();
         function onEvent(e) {
             e.preventDefault();
-            this.add(e.target.value || Date.now());
+            this.add(e.value || Date.now());
         }
 
         $(element).on(eventName, onEvent.bind(this));

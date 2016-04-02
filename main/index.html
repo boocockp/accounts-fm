@@ -37,15 +37,16 @@
     </style>
     <script src="lib/lodash.js"></script>
     <script src="lib/jquery-2.2.1.js"></script>
+    <script src="https://apis.google.com/js/client.js"></script>
+
     <script src="DataSequence.js"></script>
     <script src="CachedSequence.js"></script>
     <script src="EventSequence.js"></script>
     <script src="LocalStorageInputSource.js"></script>
+    <script src="DriveInputStore.js"></script>
+    <script src="DriveBackedLocalStorageInputStore.js"></script>
+    <script src="GoogleDriveFileStore.js"></script>
     <script src="GeneralLedger.js"></script>
-    <script>
-        let inputsStore = new LocalStorageInputSource("generalLedger.inputs");
-        var generalLedger = new GeneralLedger(inputsStore);
-    </script>
 
     <script src="shared/view/ViewUtils.js"></script>
     <script src="shared/view/DataInput.js"></script>
@@ -55,6 +56,7 @@
     <script src="shared/view/DataSelect.js"></script>
     <script src="shared/view/FormGroup.js"></script>
     <script src="shared/view/FormList.js"></script>
+    <script src="shared/view/GoogleAuth.js"></script>
     <script src="view/AccountUpdate.js"></script>
     <script src="view/AccountMaintenance.js"></script>
     <script src="view/TransactionEntry.js"></script>
@@ -62,6 +64,16 @@
     <script src="view/TrialBalance.js"></script>
 </head>
 <body>
+
+<google-auth></google-auth>
+
+<script>
+    let authorizedState = new EventSequence(document, 'googleAuth');
+    let fileStore = new GoogleDriveFileStore("generalLedger.json", authorizedState);
+    let inputsStore = new DriveInputStore(fileStore);
+    var generalLedger = new GeneralLedger(inputsStore);
+</script>
+
 
 <h2>Accounts</h2>
 <account-maintenance account-infos="{{generalLedger.accountInfos}}" account-errors="{{generalLedger.accountInputsWithErrors}}"></account-maintenance>
@@ -81,6 +93,8 @@
     <h3>Trial Balance</h3>
     <trial-balance general-ledger="{{generalLedger}}"></trial-balance>
 </div>
+
+
 
 <script>
     $('account-maintenance').get(0).accountDetailsChanges.onChange( function(a) {
